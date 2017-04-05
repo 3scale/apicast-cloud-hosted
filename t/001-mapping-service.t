@@ -14,14 +14,12 @@ run_tests();
 
 __DATA__
 
-=== TEST 1: authentication credentials missing
-The message is configurable as well as the status.
+=== TEST 1: load configs
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
   include $TEST_NGINX_SERVER_CONFIG;
 --- config
 --- request
-GET /api/test
+GET /api/test?host=api-2.prod.apicast.io
 --- error_code: 200
 --- response_body
-hello
