@@ -1,0 +1,19 @@
+---
+engines:
+  luacheck:
+    enabled: true
+    channel: beta
+  bundler-audit:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - lua
+  fixme:
+    enabled: true
+ratings:
+  paths:
+  - Gemfile.lock
+  - "**.lua"
+  - "**.conf"
