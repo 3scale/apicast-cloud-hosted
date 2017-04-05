@@ -1,0 +1,4 @@
+[submodule "apicast"]
+	path = apicast
+	url = git://github.com/3scale/apicast.git
+	ignore = dirty
