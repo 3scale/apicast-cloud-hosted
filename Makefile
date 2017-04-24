@@ -6,3 +6,6 @@ Gemfile.lock: Gemfile
 
 prove: Gemfile.lock
 	bundle exec dotenv prove
+
+build: ## Build docker image
+	docker build .
