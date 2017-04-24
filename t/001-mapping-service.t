@@ -20,6 +20,44 @@ __DATA__
   include $TEST_NGINX_SERVER_CONFIG;
 --- config
 --- request
-GET /api/test?host=api-2.prod.apicast.io
+GET /api/staging.json?host=api-2.prod.apicast.io
 --- error_code: 200
+--- no_error_log
+[error]
+--- response_body
+
+=== TEST 2: does not crash without host
+--- http_config
+  lua_package_path "$TEST_NGINX_LUA_PATH";
+  include $TEST_NGINX_SERVER_CONFIG;
+--- config
+--- request
+GET /api/staging.json
+--- error_code: 404
+--- no_error_log
+[error]
+--- response_body
+
+=== TEST 3: does not crash without env
+--- http_config
+  lua_package_path "$TEST_NGINX_LUA_PATH";
+  include $TEST_NGINX_SERVER_CONFIG;
+--- config
+--- request
+GET /api/
+--- error_code: 404
+--- no_error_log
+[error]
+--- response_body
+
+=== TEST 4: does not crash on services endpoint
+--- http_config
+  lua_package_path "$TEST_NGINX_LUA_PATH";
+  include $TEST_NGINX_SERVER_CONFIG;
+--- config
+--- request
+GET /api/admin/api/services.json
+--- error_code: 404
+--- no_error_log
+[error]
 --- response_body
