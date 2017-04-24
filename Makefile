@@ -11,12 +11,15 @@ nginx: ## Start nginx in foreground
 nginx: t/servroot
 	openresty -p t/servroot -c $(PWD)/nginx.conf -g 'daemon off;'
 
+.env:
+	cp $@.example $@
+
 busted: ## Run busted tests
-busted:
+busted: .env
 	bundle exec dotenv bin/busted
 
 prove: ## Run Test::Nginx
-prove: Gemfile.lock
+prove: Gemfile.lock .env
 	TEST_NGINX_BINARY=openresty bundle exec dotenv prove
 
 build: ## Build docker image
