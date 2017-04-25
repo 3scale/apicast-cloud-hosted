@@ -121,6 +121,9 @@ objects:
   kind: Service
   metadata:
     name: apicast
+    annotations:
+      service.alpha.openshift.io/dependencies: |-
+        [{"name": "apicast-mapping-service", "kind": "Service"}]
   spec:
     ports:
     - name: proxy
