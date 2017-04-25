@@ -14,7 +14,8 @@ describe('3scale client spec', function()
     service = _M.new({
       client = test_backend,
       api_host = 'https://example.com',
-      access_token = 'abc'
+      access_token = 'abc',
+      environment = 'production'
     })
   end)
 

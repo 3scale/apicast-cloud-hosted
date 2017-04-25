@@ -22,12 +22,18 @@ function _M.new(options)
   })
   local api_host = opts.api_host or getenv('API_HOST') or 'https://multitenant-admin.3scale.net'
   local access_token = opts.access_token or getenv('MASTER_ACCESS_TOKEN')
+  local environment = _M.normalize_environment(opts.environment)
+
+  if not environment then
+    return ngx.exit(404)
+  end
 
   return setmetatable({
     options = opts,
     http_client = http_client,
     api_host = api_host,
-    access_token = access_token
+    access_token = access_token,
+    environment = environment
   }, mt)
 end
 
@@ -63,7 +69,7 @@ function _M:load_configs()
   end
 
   local query = ngx.encode_args({ host = arg_host, token = sso_credentials.token })
-  local url = provider_domain .. '/admin/api/services/proxy/configs/production.json?' .. query
+  local url = provider_domain .. '/admin/api/services/proxy/configs/' .. self.environment .. '.json?' .. query
   local response = self.http_client.get(url)
 
   if response.status == 200 then
@@ -115,6 +121,14 @@ function _M.arg_host()
   local ngx_var = ngx.var or {}
 
   return ngx_var.arg_host
+end
+
+function _M.normalize_environment(env)
+  local env_mapping = {
+    staging = 'sandbox'
+  }
+
+  return env_mapping[env] or env
 end
 
 return _M

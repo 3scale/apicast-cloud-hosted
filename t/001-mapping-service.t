@@ -51,7 +51,7 @@ env MASTER_ACCESS_TOKEN=some-token;
     listen 8081;
     server_name 127.0.0.1;
 
-    location /admin/api/services/proxy/configs/staging.json {
+    location /admin/api/services/proxy/configs/sandbox.json {
         content_by_lua_block {
             if ngx.var.arg_host == 'api-2.production.apicast.io' then
                 ngx.say(require('cjson').encode({ proxy_configs = { } }))
