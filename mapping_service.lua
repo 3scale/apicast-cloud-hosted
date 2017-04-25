@@ -5,7 +5,8 @@ local http_ng = require('resty.http_ng')
 local cjson = require('cjson')
 local getenv = os.getenv
 local ngx_re = require('ngx.re')
-local binding = require('resty.repl')
+local resty_env = require('resty.env')
+--local binding = require('resty.repl')
 
 local mt = {
   __index = _M
@@ -14,7 +15,10 @@ local mt = {
 function _M.new(options)
   local opts = options or {}
 
-  local http_client = http_ng.new({ backend = opts.client })
+  local http_client = http_ng.new({
+    backend = opts.client,
+    ssl = { verify = resty_env.enabled('OPENSSL_VERIFY') }
+  })
   local api_host = opts.api_host or getenv('API_HOST') or 'https://multitenant-admin.3scale.net'
   local access_token = opts.access_token or getenv('MASTER_ACCESS_TOKEN')
 
