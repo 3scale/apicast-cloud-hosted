@@ -22,12 +22,44 @@ __DATA__
 
 === TEST 1: load configs
 --- main_config
-env RESOLVER=127.0.0.1;
-env API_HOST=http://master-account-admin.3scale.net.dev:3000;
-env MASTER_ACCESS_TOKEN=c695b1e6921706fd1cb32730b385157797267c44ef013769bb1d337fcdb2a2f3;
+env API_HOST=http://localhost:8081;
+env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
   include $TEST_NGINX_SERVER_CONFIG;
+  server {
+    listen 8081 default_server;
+    location /admin/api/sso_tokens/provider_create.json {
+        content_by_lua_block {
+            ngx.status = 201
+            ngx.say(require('cjson').encode({sso_token = "some-sso-token"}))
+        }
+    }
+    location /admin/api/accounts/2.json {
+        content_by_lua_block {
+            if ngx.var.arg_access_token == 'some-token' then
+                ngx.say(require('cjson').encode({ account = { admin_domain = '127.0.0.1' } }))
+            else
+              ngx.exit(403)
+            end
+        }
+    }
+  }
+
+  server {
+    listen 8081;
+    server_name 127.0.0.1;
+
+    location /admin/api/services/proxy/configs/staging.json {
+        content_by_lua_block {
+            if ngx.var.arg_host == 'api-2.production.apicast.io' then
+                ngx.say(require('cjson').encode({ proxy_configs = { } }))
+            else
+                ngx.exit(404)
+            end
+        }
+    }
+  }
 --- config
 --- request
 GET /api/staging.json?host=api-2.production.apicast.io
@@ -35,12 +67,13 @@ GET /api/staging.json?host=api-2.production.apicast.io
 --- no_error_log
 [error]
 --- response_body
+{"proxy_configs":{}}
 
 === TEST 2: does not crash without host
 --- main_config
 env RESOLVER=127.0.0.1;
-env API_HOST=http://master-account-admin.3scale.net.dev:3000;
-env MASTER_ACCESS_TOKEN=c695b1e6921706fd1cb32730b385157797267c44ef013769bb1d337fcdb2a2f3;
+env API_HOST=http://127.0.0.1:$TEST_NGINX_CLIENT_PORT;
+env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
   include $TEST_NGINX_SERVER_CONFIG;
@@ -54,8 +87,8 @@ GET /api/staging.json
 === TEST 3: does not crash without env
 --- main_config
 env RESOLVER=127.0.0.1;
-env API_HOST=http://master-account-admin.3scale.net.dev:3000;
-env MASTER_ACCESS_TOKEN=c695b1e6921706fd1cb32730b385157797267c44ef013769bb1d337fcdb2a2f3;
+env API_HOST=http://127.0.0.1:$TEST_NGINX_CLIENT_PORT;
+env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
   include $TEST_NGINX_SERVER_CONFIG;
@@ -69,8 +102,8 @@ GET /api/
 === TEST 4: does not crash on services endpoint
 --- main_config
 env RESOLVER=127.0.0.1;
-env API_HOST=http://master-account-admin.3scale.net.dev:3000;
-env MASTER_ACCESS_TOKEN=c695b1e6921706fd1cb32730b385157797267c44ef013769bb1d337fcdb2a2f3;
+env API_HOST=http://127.0.0.1:$TEST_NGINX_CLIENT_PORT;
+env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
   include $TEST_NGINX_SERVER_CONFIG;

@@ -6,6 +6,7 @@ local cjson = require('cjson')
 local getenv = os.getenv
 local ngx_re = require('ngx.re')
 local resty_env = require('resty.env')
+local resty_url = require('resty.url')
 --local binding = require('resty.repl')
 
 local mt = {
@@ -66,7 +67,7 @@ function _M:load_configs()
   local response = self.http_client.get(url)
 
   if response.status == 200 then
-    return true, cjson.decode(response.body)
+    return response.body
   else
     ngx.log(ngx.ERR, 'failed to load Proxy Configs')
     return false
@@ -86,7 +87,10 @@ function _M:provider_domain()
 
   if response.status == 200 then
     local admin_domain = cjson.decode(response.body).account.admin_domain
-    return true, 'https://' .. admin_domain
+    local url = resty_url.split(self.api_host)
+    local scheme, _, _, _, port = unpack(url)
+
+    return true, string.format('%s://%s:%s', scheme, admin_domain, port or resty_url.default_port(scheme))
   else
     ngx.log(ngx.ERR, 'failed to load Provider Domain')
     return false
