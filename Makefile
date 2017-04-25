@@ -1,6 +1,8 @@
 
 .DEFAULT_GOAL := help
 
+LOG_LEVEL ?= info
+
 Gemfile.lock: Gemfile
 	bundle check || bundle install
 
@@ -8,8 +10,9 @@ t/servroot:
 	mkdir -p $@
 
 nginx: ## Start nginx in foreground
-nginx: t/servroot
-	openresty -p t/servroot -c $(PWD)/nginx.conf -g 'daemon off;'
+nginx: export LUA_PATH=$(PWD)/src/?.lua;$(PWD)/?.lua;;
+nginx: t/servroot .env Gemfile.lock
+	dotenv openresty -p t/servroot -c $(PWD)/nginx.conf -g 'daemon off; error_log /dev/stderr $(LOG_LEVEL);'
 
 .env:
 	cp $@.example $@
