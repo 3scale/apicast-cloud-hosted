@@ -8,7 +8,7 @@ describe('3scale client spec', function()
   local service
 
   before_each(function()
-    ngx.var = { arg_host = 'http://wild.com?host=api-2.prod.apicast.io' }
+    ngx.var = { arg_host = 'api-2.production.apicast.io' }
 
     test_backend = test_backend_client.new()
     service = _M.new({
@@ -16,16 +16,6 @@ describe('3scale client spec', function()
       api_host = 'https://example.com',
       access_token = 'abc'
     })
-  end)
-
-  it('arg_host_args', function ()
-    local args = service.arg_host_args()
-    assert.equal('table', type(args))
-    assert.are.equal('api-2.prod.apicast.io', args.host)
-  end)
-
-  it('service_host', function ()
-    assert.are.equal('api-2.prod.apicast.io', service.service_host())
   end)
 
   it('provider_id', function ()
@@ -57,7 +47,7 @@ describe('3scale client spec', function()
 
   it(':create_sso', function()
     test_backend.expect{ url = 'https://example.com/admin/api/sso_tokens/provider_create.json' }.
-      respond_with{ status = 200, body = cjson.encode({
+      respond_with{ status = 201, body = cjson.encode({
         sso_token = { token = 'alaska' }
       })}
     local ok, sso_token = service:create_sso()
@@ -79,7 +69,7 @@ describe('3scale client spec', function()
       return true, 'http://provider.com'
     end)
     test_backend.expect{ url = 'http://provider.com/admin/api/services/proxy/configs/' ..
-        'production.json?host=api-2.prod.apicast.io&token=abc' }.
+        'production.json?host=api-2.production.apicast.io&token=abc' }.
       respond_with{ status = 200, body = cjson.encode({
         proxy_configs = {{ version = '1', content = 'west_is_the_best' }}
       })}
@@ -92,7 +82,7 @@ describe('3scale client spec', function()
     assert.equals('west_is_the_best', configs.proxy_configs[1].content)
 
     test_backend.expect{ url = 'http://provider.com/admin/api/services/proxy/configs/' ..
-        'production.json?host=api-2.prod.apicast.io&token=abc' }.
+        'production.json?host=api-2.production.apicast.io&token=abc' }.
       respond_with{ status = 403 }
     local ok_2, configs_2 = service:load_configs()
     assert.False(ok_2)
