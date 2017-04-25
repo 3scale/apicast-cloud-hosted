@@ -29,7 +29,7 @@ describe('3scale client spec', function()
       })}
     local ok, domain = service:provider_domain()
     assert.True(ok)
-    assert.are.equal('https://alaska.com', domain)
+    assert.are.equal('https://alaska.com:443', domain)
 
     test_backend.expect{ url = 'https://example.com/admin/api/accounts/2.json?access_token=abc' }.
       respond_with{ status = 403 }
@@ -73,13 +73,10 @@ describe('3scale client spec', function()
       respond_with{ status = 200, body = cjson.encode({
         proxy_configs = {{ version = '1', content = 'west_is_the_best' }}
       })}
-    local ok, configs = service:load_configs()
-    assert.True(ok)
+    local configs = service:load_configs()
     assert.truthy(configs)
-    assert.equal('table', type(configs))
-    assert.equals(1, #configs.proxy_configs)
-    assert.equals('1', configs.proxy_configs[1].version)
-    assert.equals('west_is_the_best', configs.proxy_configs[1].content)
+    assert.equal('string', type(configs))
+    assert.equals('{"proxy_configs":[{"version":"1","content":"west_is_the_best"}]}', configs)
 
     test_backend.expect{ url = 'http://provider.com/admin/api/services/proxy/configs/' ..
         'production.json?host=api-2.production.apicast.io&token=abc' }.
