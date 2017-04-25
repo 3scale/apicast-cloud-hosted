@@ -47,7 +47,7 @@ function _M:create_sso()
   if response.status == 201 then
     return true, cjson.decode(response.body).sso_token
   else
-    ngx.log(ngx.ERR, 'failed to create SSO token')
+    ngx.log(ngx.ERR, 'failed to create SSO token: ', response.error or response.status)
     return false
   end
 end
