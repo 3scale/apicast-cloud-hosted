@@ -88,8 +88,7 @@ function _M:provider_domain()
   end
 
   local query = ngx.encode_args({ access_token = self.access_token })
-  local url = self.api_host .. '/admin/api/accounts/' .. provider_id .. '.json?' .. query
-  local response = self.http_client.get(url)
+  local response = self.http_client.get(self.api_host .. '/admin/api/accounts/' .. provider_id .. '.json?' .. query)
 
   if response.status == 200 then
     local admin_domain = cjson.decode(response.body).account.admin_domain
