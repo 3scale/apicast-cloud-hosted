@@ -53,7 +53,7 @@ env MASTER_ACCESS_TOKEN=some-token;
 
     location /admin/api/services/proxy/configs/sandbox.json {
         content_by_lua_block {
-            if ngx.var.arg_host == 'api-2.production.apicast.io' then
+            if ngx.var.arg_host == 'api-test-2.production.apicast.io' then
                 ngx.say(require('cjson').encode({ proxy_configs = { } }))
             else
                 ngx.exit(404)
@@ -63,7 +63,7 @@ env MASTER_ACCESS_TOKEN=some-token;
   }
 --- config
 --- request
-GET /api/staging.json?host=api-2.production.apicast.io
+GET /api/staging.json?host=api-test-2.production.apicast.io
 --- error_code: 200
 --- no_error_log
 [error]

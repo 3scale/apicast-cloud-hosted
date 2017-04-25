@@ -114,7 +114,8 @@ function _M.provider_id()
     return false
   end
 
-  return ngx_re.split(provider_id_part, '-')[2]
+  local parts = ngx_re.split(provider_id_part, '-')
+  return parts[#parts]
 end
 
 function _M.arg_host()
