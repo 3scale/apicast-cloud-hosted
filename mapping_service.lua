@@ -17,7 +17,7 @@ function _M.new(options)
 
   local http_client = http_ng.new({
     backend = opts.client,
-    ssl = { verify = resty_env.enabled('OPENSSL_VERIFY') }
+    options = { ssl = { verify = resty_env.enabled('OPENSSL_VERIFY') or false } }
   })
   local api_host = opts.api_host or getenv('API_HOST') or 'https://multitenant-admin.3scale.net'
   local access_token = opts.access_token or getenv('MASTER_ACCESS_TOKEN')
