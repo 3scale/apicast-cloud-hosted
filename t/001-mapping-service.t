@@ -22,6 +22,7 @@ __DATA__
 
 === TEST 1: load configs
 --- main_config
+env RESOLVER=127.0.0.1;
 env API_HOST=http://localhost:8081;
 env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
