@@ -4,7 +4,8 @@ local _M = {
 local http_ng = require('resty.http_ng')
 local cjson = require('cjson')
 local getenv = os.getenv
---local binding = require('resty.repl')
+local ngx_re = require('ngx.re')
+local binding = require('resty.repl')
 
 local mt = {
   __index = _M
@@ -90,13 +91,16 @@ end
 
 function _M.provider_id()
   local arg_host = _M.arg_host()
-
   if not arg_host then
     return false
   end
 
-  local _, provider_id = arg_host:match("(api)-(%d)")
-  return provider_id
+  local provider_id_part = ngx_re.split(arg_host, '[%.]')[1]
+  if not provider_id_part then
+    return false
+  end
+
+  return ngx_re.split(provider_id_part, '-')[2]
 end
 
 function _M.arg_host()
