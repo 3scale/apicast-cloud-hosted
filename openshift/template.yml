@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: "apicast-cloud-hosted"
+objects:
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: apicast-mapping-service
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: apicast-mapping-service
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: apicast-mapping-service
+      spec:
+        containers:
+        - name: apicast-mapping-service
+          image: "${MAPPING_SERVICE_IMAGE}"
+          imagePullPolicy: Always
+          env:
+          - name: MASTER_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "${MASTER_ACCESS_TOKEN_SECRET}"
+                key: password
+          command: ['bin/apicast']
+          livenessProbe:
+            tcpSocket:
+              port: mapping
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: management
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 30
+          ports:
+          - containerPort: 8093
+            name: mapping
+            protocol: TCP
+          - containerPort: 8090
+            name: management
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: apicast
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: apicast
+    strategy:
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          deploymentconfig: apicast
+      spec:
+        containers:
+        - env:
+          - name: APICAST_CONFIGURATION_LOADER
+            value: "lazy"
+          - name: APICAST_CONFIGURATION_CACHE
+            value: "${CACHE_TTL}"
+          - name: THREESCALE_DEPLOYMENT_ENV
+            value: "${ENVIRONMENT}"
+          - name: THREESCALE_PORTAL_ENDPOINT
+            value: "http://apicast-mapping-service/config"
+          image: "${APICAST_IMAGE}"
+          imagePullPolicy: IfNotPresent
+          name: apicast
+          livenessProbe:
+            tcpSocket:
+              port: proxy
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /status/ready
+              port: management
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 30
+          ports:
+          - containerPort: 8080
+            name: proxy
+            protocol: TCP
+          - containerPort: 8090
+            name: management
+            protocol: TCP
+    triggers:
+    - type: ConfigChange
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast-mapping-service
+  spec:
+    ports:
+    - name: mapping
+      port: 80
+      protocol: TCP
+      targetPort: mapping
+    selector:
+      deploymentconfig: apicast-mapping-service
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast
+  spec:
+    ports:
+    - name: proxy
+      port: 80
+      protocol: TCP
+      targetPort: proxy
+    selector:
+      deploymentconfig: apicast
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: apicast-router
+    labels:
+      app: apicast-router
+  spec:
+    host: apicast.${ENVIRONMENT}.gw.apicast.io
+    to:
+      kind: Service
+      name: apicast
+    port:
+      targetPort: proxy
+    wildcardPolicy: Subdomain
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Allow
+
+parameters:
+
+- description: "Deployment environment. `staging` or `production`"
+  name: ENVIRONMENT
+  required: true
+
+- description: "Cache TTL in seconds. For how long cache configurations"
+  name: CACHE_TTL
+  required: true
+
+- name: MAPPING_SERVICE_IMAGE
+  description: "Mapping Service image name. Used to discover proxy configurations."
+  required: true
+  value: "quay.io/3scale/apicast-sandbox:load-configs"
+
+- name: APICAST_IMAGE
+  description: "APIcast image name."
+  required: true
+  value: "quay.io/3scale/apicast:v3.0.0-rc1"
+
+- name: MASTER_ACCESS_TOKEN_SECRET
+  description: "Secret name that containts System Master Access Token password"
+  required: true
+  value: 'master-access-token-secret'
