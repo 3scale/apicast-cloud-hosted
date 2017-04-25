@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+exec resty --http-include spec/fixtures/echo.conf --http-include $(pwd)/spec/fixtures/ssl.conf apicast/bin/busted.lua "$@"
