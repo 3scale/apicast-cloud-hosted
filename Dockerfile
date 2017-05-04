@@ -1,4 +1,4 @@
-FROM quay.io/3scale/apicast:v3.0.0-rc1
+FROM quay.io/3scale/apicast:http-cache
 
 WORKDIR /opt/app-root/src/
 

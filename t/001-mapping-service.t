@@ -33,7 +33,7 @@ env MASTER_ACCESS_TOKEN=some-token;
     location /admin/api/sso_tokens/provider_create.json {
         content_by_lua_block {
             ngx.status = 201
-            ngx.say(require('cjson').encode({sso_token = "some-sso-token"}))
+            ngx.say(require('cjson').encode({sso_token = { token = "some-sso-token" }}))
         }
     }
     location /admin/api/accounts/2.json {
