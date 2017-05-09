@@ -1,20 +1,24 @@
 .DEFAULT_GOAL := help
 
-RUNTIME_IMAGE ?= quay.io/3scale/apicast:master
+APICAST_VERSION ?= v3.0.0
+RUNTIME_IMAGE ?= quay.io/3scale/apicast:$(APICAST_VERSION)
 BUILDER_IMAGE ?= $(RUNTIME_IMAGE)-builder
-IMAGE_NAME ?= cloud-hosted-apicast
+IMAGE_TAG ?= $(APICAST_VERSION)
+IMAGE_NAME ?= apicast-cloud-hosted
 REGISTRY ?= quay.io/3scale
+LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
+REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
 
 build: ## Build the image
-	s2i build .  $(BUILDER_IMAGE) $(IMAGE_NAME) --environment-file=.env --assemble-user=root --runtime-image=$(RUNTIME_IMAGE)
+	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) --environment-file=.env --assemble-user=root --runtime-image=$(RUNTIME_IMAGE)
 
 test: ## Run tests (try to start the image)
-	docker run -it --rm cloud-hosted-apicast bin/apicast -d
+	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast -d
 
 
 push: ## Push image to the registry
-	docker tag $(IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME)
-	docker push $(REGISTRY)/$(IMAGE_NAME)
+	docker tag $(LOCAL_IMAGE_NAME) $(REGISTRY)/$(REMOTE_IMAGE_NAME)
+	docker push $(REGISTRY)/$(REMOTE_IMAGE_NAME)
 
 
 # Check http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
