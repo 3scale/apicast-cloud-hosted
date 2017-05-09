@@ -1,0 +1,39 @@
+#!/bin/bash -e
+#
+# S2I assemble script for the 's2i-openresty-centos7' image.
+# The 'assemble' script builds your application source so that it is ready to run.
+#
+# For more information refer to the documentation:
+#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+
+if [[ "$1" == "-h" ]]; then
+	# If the 's2i-openresty-centos7' assemble script is executed with '-h' flag,
+	# print the usage.
+	exec /usr/libexec/s2i/usage
+fi
+
+# Restore artifacts from the previous build (if they exist).
+#
+if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
+  echo "---> Restoring build artifacts..."
+  cp -vr /tmp/artifacts/. /usr/local/openresty/luajit/
+  rm -rf /tmp/artifacts/
+fi
+
+echo "---> Building application from source..."
+pushd /tmp/src/
+
+if compgen -G "/tmp/src/*.rockspec" > /dev/null; then
+  find . -name "*.rockspec" -exec luarocks build {} \;
+fi
+
+# cleanup source
+rm -rf "$(pwd)"
+
+popd > /dev/null
+
+if [ ! -e "$(pwd)/bin" ];
+then
+  ln -svf "$(pwd)/bin" "${HOME}"
+fi

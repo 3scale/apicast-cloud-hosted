@@ -1,0 +1,23 @@
+#!/bin/bash -e
+#
+# S2I assemble script for the 's2i-openresty-centos7' image.
+# The 'assemble' script builds your application source so that it is ready to run.
+#
+# For more information refer to the documentation:
+#	https://github.com/openshift/source-to-image/blob/master/docs/builder_image.md
+#
+
+if [[ "$1" == "-h" ]]; then
+	# If the 's2i-openresty-centos7' assemble script is executed with '-h' flag,
+	# print the usage.
+	exec /usr/libexec/s2i/usage
+fi
+
+echo "---> Copying runtime artifacts"
+
+
+ln --verbose --symbolic --force "$(pwd)/share/lua/"* /usr/local/share/lua/ || echo "symlinks already created"
+cp --verbose --recursive --no-target-directory --no-clobber "$(pwd)/app" "$(pwd)/src"
+ln --verbose --symbolic --force "$(pwd)/src/bin" "$(pwd)/bin"
+ln --verbose --symbolic --force "$(pwd)/src/http.d" "$(pwd)"
+ln --verbose --symbolic --force /etc/ssl/certs/ca-bundle.crt "$(pwd)/src/conf"

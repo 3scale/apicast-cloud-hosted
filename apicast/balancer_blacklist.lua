@@ -1,10 +1,9 @@
-local apicast = require('apicast').new()
 local iputils = require("resty.iputils")
 local default_balancer = require('resty.balancer.round_robin').call
 local resty_balancer = require('resty.balancer')
 
-local _M = { _VERSION = '0.0' }
-local mt = { __index = setmetatable(_M, { __index = apicast }) }
+local _M = { _VERSION = '0.0', _NAME = 'IP Blacklist' }
+local mt = { __index = _M }
 
 local ipv4 = {
   unspecified = { '0.0.0.0/8' },
@@ -28,14 +27,11 @@ end
 
 
 function _M.new()
-  return setmetatable({
-    blacklist = blacklist
-  }, mt)
+  return setmetatable({}, mt)
 end
 
 function _M:init()
   iputils.enable_lrucache()
-  apicast:init()
 end
 
 local balancer_with_blacklist = resty_balancer.new(function(peers)

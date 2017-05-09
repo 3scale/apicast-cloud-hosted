@@ -7,6 +7,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ['cloud_hosted.module'] = 'blacklist.lua'
+    ['cloud_hosted.balancer_blacklist'] = 'balancer_blacklist.lua',
+    ['cloud_hosted.module'] = 'module.lua'
   }
 }
