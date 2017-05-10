@@ -8,6 +8,7 @@ IMAGE_NAME ?= apicast-cloud-hosted
 REGISTRY ?= quay.io/3scale
 LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
 REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
+LOG_LEVEL ?= notice
 
 build: ## Build the image
 	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) --environment-file=.env --assemble-user=root --runtime-image=$(RUNTIME_IMAGE)
@@ -15,6 +16,8 @@ build: ## Build the image
 test: ## Run tests (try to start the image)
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast -d
 
+start: ## Start APIcast
+	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast
 
 push: ## Push image to the registry
 	docker tag $(LOCAL_IMAGE_NAME) $(REGISTRY)/$(REMOTE_IMAGE_NAME)

@@ -8,6 +8,7 @@ build = {
   type = "builtin",
   modules = {
     ['cloud_hosted.balancer_blacklist'] = 'balancer_blacklist.lua',
+    ['cloud_hosted.rate_limit'] = 'rate_limit.lua',
     ['cloud_hosted.module'] = 'module.lua'
   }
 }
