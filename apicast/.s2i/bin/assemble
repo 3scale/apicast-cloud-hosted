@@ -28,6 +28,9 @@ if compgen -G "/tmp/src/*.rockspec" > /dev/null; then
   find . -name "*.rockspec" -exec luarocks build {} \;
 fi
 
+echo "Copying $(compgen -G "*.d" | tr "\n" " ")to /opt/app/"
+cp -r *.d/ /opt/app/
+
 # cleanup source
 rm -rf "$(pwd)"
 
