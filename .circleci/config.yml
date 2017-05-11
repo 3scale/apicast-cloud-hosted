@@ -19,3 +19,10 @@ jobs:
               cd apicast && make push REMOTE_IMAGE_NAME=apicast-sandbox:apicast-${CIRCLE_TAG:-${CIRCLE_BRANCH}}
             fi
 
+# TODO: remove this once CircleCI 2.0 supports building from tags
+# https://discuss.circleci.com/t/git-tag-deploys-in-2-0/9493/5
+deployment:
+  fake_deploy_for_cci2:
+    tag: /.*/
+    commands:
+      - echo "make tags run in 2.0"
