@@ -11,12 +11,14 @@ jobs:
       - setup_remote_docker:
           reusable: true
       - run: cd apicast && make build test
+      - run: cd mapping-service && make build IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
       - deploy:
           name: Push docker image
           command: |
             if [ -n "${CIRCLE_TAG}" ] || [ -n "${CIRCLE_BRANCH}" ]; then
               docker login -u="${DOCKER_USER}" -p="${DOCKER_PASS}" "${DOCKER_REGISTRY}"
-              cd apicast && make push REMOTE_IMAGE_NAME=apicast-sandbox:apicast-${CIRCLE_TAG:-${CIRCLE_BRANCH}}
+              (cd apicast && make push REMOTE_IMAGE_NAME=apicast-cloud-hosted:apicast-${CIRCLE_TAG:-${CIRCLE_BRANCH}})
+              (cd mapping-service && make push IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}})
             fi
 
 # TODO: remove this once CircleCI 2.0 supports building from tags

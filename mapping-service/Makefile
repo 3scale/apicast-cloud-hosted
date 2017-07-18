@@ -1,7 +1,16 @@
-
 .DEFAULT_GOAL := help
 
+ifndef IMAGE_TAG
+$(error IMAGE_TAG is not set)
+endif
+
+IMAGE_NAME ?= mapping-service
+LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
+REGISTRY ?= quay.io/3scale
+REMOTE_IMAGE_NAME ?= $(REGISTRY)/apicast-cloud-hosted:$(IMAGE_NAME)-$(IMAGE_TAG)
 LOG_LEVEL ?= info
+
+
 
 Gemfile.lock: Gemfile
 	bundle check || bundle install
@@ -26,10 +35,14 @@ prove: Gemfile.lock .env
 	TEST_NGINX_BINARY=openresty bundle exec dotenv prove
 
 build: ## Build docker image
-	docker build .
+	docker build -t $(LOCAL_IMAGE_NAME) .
 
 target: ## Install deps
 	cd apicast && make dependencies
+
+push:
+	docker tag $(LOCAL_IMAGE_NAME) $(REMOTE_IMAGE_NAME)
+	docker push $(REMOTE_IMAGE_NAME)
 
 # Check http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ## Print this help
