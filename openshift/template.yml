@@ -164,12 +164,12 @@ parameters:
 - name: MAPPING_SERVICE_IMAGE
   description: "Mapping Service image name. Used to discover proxy configurations."
   required: true
-  value: "quay.io/3scale/apicast-sandbox:v0.1"
+  value: "quay.io/3scale/apicast-cloud-hosted:mapping-service-v3.0.0-cloud1"
 
 - name: APICAST_IMAGE
   description: "APIcast image name."
   required: true
-  value: "quay.io/3scale/apicast:v3.0.0-rc1"
+  value: "quay.io/3scale/apicast-cloud-hosted:apicast-v3.0.0-cloud1"
 
 - name: MASTER_ACCESS_TOKEN_SECRET
   description: "Secret name that containts System Master Access Token password"
