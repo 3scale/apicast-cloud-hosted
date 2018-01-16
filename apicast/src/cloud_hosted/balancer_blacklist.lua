@@ -2,7 +2,7 @@ local iputils = require("resty.iputils")
 local default_balancer = require('resty.balancer.round_robin').call
 local resty_balancer = require('resty.balancer')
 
-local _M = { _VERSION = '0.0', _NAME = 'IP Blacklist' }
+local _M = require('apicast.policy').new('IP Blacklist', '0.1')
 local mt = { __index = _M }
 
 local ipv4 = {
@@ -24,7 +24,6 @@ for _,cidrs in pairs(ipv4) do
     table.insert(blacklist, list[i])
   end
 end
-
 
 function _M.new()
   return setmetatable({}, mt)

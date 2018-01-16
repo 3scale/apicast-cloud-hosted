@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-APICAST_VERSION ?= policy-chain
+APICAST_VERSION ?= v3.2.0-alpha2
 RUNTIME_IMAGE ?= quay.io/3scale/apicast:$(APICAST_VERSION)
 BUILDER_IMAGE ?= $(RUNTIME_IMAGE)-builder
 IMAGE_TAG ?= $(APICAST_VERSION)
@@ -11,7 +11,7 @@ REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
 LOG_LEVEL ?= notice
 
 build: ## Build the image
-	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) --environment-file=.env --runtime-image=$(RUNTIME_IMAGE)
+	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) --environment-file=.env --runtime-image=$(RUNTIME_IMAGE) --loglevel=5
 
 test: ## Run tests (try to start the image)
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast -d

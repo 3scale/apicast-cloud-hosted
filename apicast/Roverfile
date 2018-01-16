@@ -1,5 +1,10 @@
 luarocks {
 	group 'production' {
 		module { 'lua-resty-iputils' },
+	},
+
+	group { 'development', 'test' } {
+		module { 'apicast' },
+		module { 'lua-resty-repl' },
 	}
 }
