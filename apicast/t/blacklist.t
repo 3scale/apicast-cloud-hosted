@@ -38,7 +38,6 @@ GET /t HTTP/1.1
 
 === TEST 2: balancer upstream blacklist
 Going to prevent connecting to local upstream.
---- ONLY
 --- configuration
 {
   "services": [

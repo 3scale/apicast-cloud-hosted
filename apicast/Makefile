@@ -17,6 +17,9 @@ build: ## Build the image
 		--runtime-image=$(RUNTIME_IMAGE) --loglevel=$(LOGLEVEL) \
 		--pull-policy=$(PULL_POLICY) --runtime-pull-policy=$(PULL_POLICY)
 
+builder: ## Build the builder image
+	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
+		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY)
 
 test: ## Run tests (try to start the image)
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --daemon --dev
