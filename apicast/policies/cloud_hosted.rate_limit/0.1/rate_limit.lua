@@ -1,3 +1,5 @@
+local tonumber = tonumber
+
 local limit_req = require "resty.limit.req"
 
 local _M = require('apicast.policy').new('Rate Limit', '0.1')
@@ -5,11 +7,11 @@ local _M = require('apicast.policy').new('Rate Limit', '0.1')
 local new = _M.new
 
 local function new_limiter(limit, burst)
-  local limiter, err = limit_req.new("rate_limit_req_store", limit, burst or 0)
+  local limiter, err = limit_req.new("rate_limit_req_store", tonumber(limit), tonumber(burst) or 0)
 
   if limiter then
     ngx.log(ngx.NOTICE, 'rate limit: ', limit, '/s', ' burst: ', burst or limit, '/s')
-  elseif not arg then  -- arg is a table when executed from the CLI
+  elseif not arg then -- if not being loaded on the CLI
     ngx.log(ngx.ERR, 'error loading rate limiter: ', err)
   end
 
@@ -29,16 +31,11 @@ function _M.new(configuration)
 
   if limit then
     policy.limiter = new_limiter(limit, burst)
-    assert(policy.limiter, 'missing limiter')
   else
     ngx.log(ngx.NOTICE, 'rate limit not set')
   end
 
   return policy
-end
-
-function _M:content()
-  ngx.log(ngx.STDERR, 'this is content phase')
 end
 
 function _M:access(context)

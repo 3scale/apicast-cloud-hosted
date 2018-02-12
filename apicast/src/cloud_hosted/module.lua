@@ -1,6 +1,8 @@
-local apicast = require('apicast').new()
-local blacklist = require('cloud_hosted.balancer_blacklist')
-local rate_limit = require('cloud_hosted.rate_limit')
+local policy_loader = require('apicast.policy_loader')
+
+local apicast = policy_loader('apicast').new()
+local blacklist = policy_loader('cloud_hosted.balancer_blacklist', '0.1')
+local rate_limit = policy_loader('cloud_hosted.rate_limit', '0.1')
 local resty_env = require('resty.env')
 
 local _M = { _VERSION = '0.1', _NAME = 'APIcast Cloud Hosted' }
@@ -10,8 +12,8 @@ function _M.new()
   return setmetatable({
     blacklist = blacklist.new(),
     rate_limit = rate_limit.new(
-      tonumber(resty_env.get('RATE_LIMIT') or 5),
-      tonumber(resty_env.get('RATE_LIMIT_BURST') or 50)
+      { limit = tonumber(resty_env.value('RATE_LIMIT') or 5),
+        burst = tonumber(resty_env.value('RATE_LIMIT_BURST') or 50) }
     )
   }, mt)
 end

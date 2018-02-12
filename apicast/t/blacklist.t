@@ -1,12 +1,12 @@
 BEGIN {
     $ENV{TEST_NGINX_APICAST_BINARY} ||= 'rover exec apicast';
+    $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
 }
 
 use strict;
 use warnings FATAL => 'all';
 use Test::APIcast::Blackbox 'no_plan';
 
-repeat_each(1);
 run_tests();
 
 __DATA__
@@ -19,7 +19,7 @@ The module does not crash without configuration.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.balancer_blacklist" },
+          { "name": "cloud_hosted.balancer_blacklist", "version": "0.1" },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -45,8 +45,8 @@ Going to prevent connecting to local upstream.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.balancer_blacklist" },
-          { "name": "cloud_hosted.upstream",
+          { "name": "cloud_hosted.balancer_blacklist", "version": "0.1" },
+          { "name": "cloud_hosted.upstream", "version": "0.1",
             "configuration": {
               "url": "http://test:$TEST_NGINX_SERVER_PORT", "host": "test"
             }

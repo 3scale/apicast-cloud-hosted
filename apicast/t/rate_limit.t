@@ -1,5 +1,6 @@
 BEGIN {
     $ENV{TEST_NGINX_APICAST_BINARY} ||= 'rover exec apicast';
+    $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
 }
 
 use strict;
@@ -19,7 +20,7 @@ The module does not crash without configuration.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit" },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1" },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -44,7 +45,7 @@ The module does rate limiting.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit", "configuration": { "limit": 1 } },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1 } },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -70,7 +71,7 @@ Delays the request.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit", "configuration": { "limit": 1, "burst": 1 } },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "burst": 1 } },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -98,7 +99,7 @@ Sends the custom status code.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit", "configuration": { "limit": 1, "status": 429 } },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "status": 429 } },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
