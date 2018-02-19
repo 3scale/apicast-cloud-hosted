@@ -130,6 +130,10 @@ objects:
       port: 80
       protocol: TCP
       targetPort: proxy
+    - name: management
+      protocol: TCP
+      port: 8090
+      targetPort: management
     selector:
       deploymentconfig: apicast
 
