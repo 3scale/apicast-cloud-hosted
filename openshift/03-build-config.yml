@@ -1,4 +1,4 @@
-apiVersion: build.openshift.io/v1
+apiVersion: v1
 kind: BuildConfig
 metadata:
   labels:
@@ -7,18 +7,16 @@ metadata:
 status:
 spec:
   nodeSelector: null
-  postCommit:
-    args:
-      - '--dev'
-      - '--daemon'
-    command:
-      - bin/apicast
+  #postCommit:
+  #  args:
+  #    - '--dev'
+  #    - '--daemon'
+  #  command:
+  #    - bin/apicast
   output:
-    pushSecret:
-      name: quay
     to:
-      kind: DockerImage
-      name: 'quay.io/3scale/apicast-cloud-hosted:apicast-master'
+      kind: ImageStreamTag
+      name: apicast-cloud-hosted:latest
   source:
     contextDir: /apicast
     git:
@@ -31,5 +29,5 @@ spec:
     sourceStrategy:
       forcePull: true
       from:
-        kind: DockerImage
-        name: 'quay.io/3scale/apicast:master-builder'
+        kind: ImageStreamTag
+        name: apicast:builder
