@@ -1,3 +1,2 @@
-.idea
-*.swp
 lua_modules
+t/servroot
