@@ -10,3 +10,5 @@ spec:
     from:
       kind: DockerImage
       name: quay.io/3scale/apicast:master-builder
+    importPolicy:
+      scheduled: true

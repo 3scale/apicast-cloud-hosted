@@ -122,7 +122,7 @@ objects:
         imageChangeParams:
           automatic: true
           containerNames:
-            - apicast-${RELEASE_REF} 
+            - apicast
           from:
             kind: ImageStreamTag
             name: apicast-cloud-hosted:${RELEASE_REF}
