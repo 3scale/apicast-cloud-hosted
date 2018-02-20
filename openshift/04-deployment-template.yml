@@ -50,6 +50,13 @@ objects:
           - containerPort: 8090
             name: management
             protocol: TCP
+          resources:
+            limits:
+                cpu: '1'
+                memory: 128Mi
+            requests:
+                cpu: 500m
+                memory: 64Mi
     triggers:
     - type: ConfigChange
 
@@ -103,6 +110,13 @@ objects:
           - containerPort: 8090
             name: management
             protocol: TCP
+          resources:
+            limits:
+                cpu: '1'
+                memory: 128Mi
+            requests:
+                cpu: 500m
+                memory: 64Mi
     triggers:
       - type: ImageChange
         imageChangeParams:
