@@ -20,7 +20,7 @@ objects:
           deploymentconfig: apicast-mapping-service-${RELEASE_REF}
       spec:
         containers:
-        - name: apicast-mapping-service-${RELEASE_REF}
+        - name: apicast-mapping-service
           image: "${MAPPING_SERVICE_IMAGE}"
           imagePullPolicy: Always
           env:
@@ -79,10 +79,10 @@ objects:
           - name: THREESCALE_PORTAL_ENDPOINT
             value: "http://apicast-mapping-service-${RELEASE_REF}/config"
           - name: APICAST_OIDC_LOG_LEVEL
-            value: "${APICAST_OIDC_LOG_LEVEL}"
+            value: "notice"
           image: apicast-cloud-hosted:${RELEASE_REF}
           imagePullPolicy: IfNotPresent
-          name: apicast-${RELEASE_REF}
+          name: apicast
           livenessProbe:
             tcpSocket:
               port: proxy
@@ -170,7 +170,3 @@ parameters:
   required: true
   value: 'master-access-token-secret'
 
-- description: "APIcast OIDC Log Level"
-  name: APICAST_OIDC_LOG_LEVEL
-  value: "notice"
-  required: true

@@ -8,7 +8,7 @@ spec:
   tags:
   - name: latest
     annotations:
-      openshift.io/display-name: Apicast Cloud Hosted (latest) 
+      openshift.io/display-name: APIcast Cloud Hosted (latest) 
     from:
       kind: ImageStreamTag
       name: latest

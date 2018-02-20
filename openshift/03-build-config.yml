@@ -30,4 +30,4 @@ spec:
       forcePull: true
       from:
         kind: ImageStreamTag
-        name: apicast:builder
+        name: apicast:master-builder

@@ -6,7 +6,7 @@ metadata:
     app: apicast
 spec:
   tags:
-  - name: builder
+  - name: master-builder
     from:
       kind: DockerImage
       name: quay.io/3scale/apicast:master-builder
