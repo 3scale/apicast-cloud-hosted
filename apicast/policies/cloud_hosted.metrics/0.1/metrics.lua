@@ -2,6 +2,9 @@ local _M = require('apicast.policy').new('Metrics', '0.1')
 
 local errlog = require('ngx.errlog')
 local prometheus = require('apicast.prometheus')
+local tonumber = tonumber
+local select = select
+local find = string.find
 
 local new = _M.new
 
@@ -52,17 +55,32 @@ function _M:init()
 end
 
 local logs_metric = prometheus('counter', 'nginx_error_log', "Items in nginx error log", {'level'})
+local http_connections_metric =  prometheus('gauge', 'nginx_http_connections', 'Number of HTTP connections', {'state'})
 
 function _M.metrics()
-  local logs = errlog.get_logs()
-
-  if not logs then return nil, 'could not get logs' end
-
+  local logs = errlog.get_logs() or empty
   local labels = {}
 
   for i = 1, #logs, 3 do
     labels[1] = log_map[logs[i]] or 'unknown'
     logs_metric:inc(1, labels)
+  end
+
+  local response = ngx.location.capture("/nginx_status")
+
+  if response.status == 200 then
+    local accepted, handled, total = select(3, find(response.body, [[accepts handled requests%s+(%d+) (%d+) (%d+)]]))
+    local var = ngx.var
+
+    http_connections_metric:set(tonumber(var.connections_reading) or 0, {"reading"})
+    http_connections_metric:set(tonumber(var.connections_waiting) or 0, {"waiting"})
+    http_connections_metric:set(tonumber(var.connections_writing) or 0, {"writing"})
+    http_connections_metric:set(tonumber(var.connections_active) or 0, {"active"})
+    http_connections_metric:set(accepted or 0, {"accepted"})
+    http_connections_metric:set(handled or 0, {"handled"})
+    http_connections_metric:set(total or 0, {"total"})
+  else
+    prometheus:log_error('Could not get status from nginx')
   end
 end
 
