@@ -1,6 +1,8 @@
 local iputils = require("resty.iputils")
 local default_balancer = require('resty.balancer.round_robin').call
 local resty_balancer = require('resty.balancer')
+local prometheus = require('apicast.prometheus')
+local ngx_balancer = require('ngx.balancer')
 
 local _M = require('apicast.policy').new('IP Blacklist', '0.1')
 local mt = { __index = _M }
@@ -33,6 +35,11 @@ function _M:init()
   iputils.enable_lrucache()
 end
 
+local balancer_metric = prometheus('counter', 'cloud_hosted_balancer', 'Cloud hosted balancer', {'status'})
+
+local blacklisted_label = { 'blacklisted' }
+local success_label = { 'success' }
+
 local balancer_with_blacklist = resty_balancer.new(function(peers)
   local peer, i = default_balancer(peers)
 
@@ -40,8 +47,10 @@ local balancer_with_blacklist = resty_balancer.new(function(peers)
   local blacklisted, err = iputils.ip_in_cidrs(ip, blacklist)
 
   if blacklisted then
+    balancer_metric:inc(1, blacklisted_label)
     return nil, 'blacklisted'
   elseif err then
+    balancer_metric:inc(1, { err })
     return nil, err
   else
     return peer, i
@@ -59,6 +68,8 @@ function _M:balancer()
     ngx.status = ngx.HTTP_SERVICE_UNAVAILABLE
     ngx.log(ngx.ERR, "failed to set current backend peer: ", err)
     ngx.exit(ngx.status)
+  else
+    balancer_metric:inc(1, success_label)
   end
 end
 
