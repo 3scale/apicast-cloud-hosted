@@ -1,6 +1,7 @@
 local tonumber = tonumber
 
 local limit_req = require "resty.limit.req"
+local prometheus = require('apicast.prometheus')
 
 local _M = require('apicast.policy').new('Rate Limit', '0.1')
 
@@ -38,6 +39,11 @@ function _M.new(configuration)
   return policy
 end
 
+local rate_limits_metric = prometheus('counter', 'cloud_hosted_rate_limit', "Cloud hosted rate limits", {'state'})
+
+local delayed = { 'delayed ' }
+local rejected = { 'rejected' }
+
 function _M:access(context)
   local limiter = self.limiter
 
@@ -51,6 +57,7 @@ function _M:access(context)
   if not delay then
     ngx.log(ngx.WARN, err, ' request over limit, key: ', key)
     if err == "rejected" then
+      rate_limits_metric:inc(1, rejected)
       return ngx.exit(status)
     end
     ngx.log(ngx.ERR, "failed to limit req: ", err)
@@ -61,6 +68,7 @@ function _M:access(context)
     local excess = err
 
     ngx.log(ngx.WARN, 'delaying request: ', key, ' for ', delay, 's, excess: ', excess)
+    rate_limits_metric:inc(1, delayed)
     ngx.sleep(delay)
   end
 end

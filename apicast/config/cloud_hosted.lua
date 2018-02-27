@@ -6,7 +6,7 @@ if not arg then -- {arg} is defined only when executing the CLI
     limit = os.getenv('RATE_LIMIT') or 5,
     burst = os.getenv('RATE_LIMIT_BURST') or 50 }), 1)
   policy_chain:insert(PolicyChain.load_policy('cloud_hosted.balancer_blacklist', '0.1'), 1)
-  policy_chain:insert(PolicyChain.load_policy('cloud_hosted.metrics', '0.1'))
+  policy_chain:insert(PolicyChain.load_policy('cloud_hosted.metrics', '0.1', { log_level = 'warn' }))
 end
 
 return {
