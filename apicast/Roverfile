@@ -1,6 +1,7 @@
 luarocks {
 	group 'production' {
 		module { 'lua-resty-iputils' },
+		module { 'nginx-lua-prometheus' },
 	},
 
 	group { 'development', 'test' } {

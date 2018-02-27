@@ -10,5 +10,6 @@ lua-resty-jwt 0.1.11-0||development,test
 lua-resty-repl 0.0.6-0|3878f41b7e8f97b1c96919db19dbee9496569dda|development,test
 lua-resty-url 0.2.0-1||development,test
 luafilesystem 1.7.0-2||development,test
+nginx-lua-prometheus 0.20171117-4||production
 penlight 1.5.4-1||development,test
 router 2.1-0||development,test
