@@ -10,5 +10,6 @@ if not arg then -- {arg} is defined only when executing the CLI
 end
 
 return {
-  policy_chain = policy_chain
+  policy_chain = policy_chain,
+  ports = { metrics = 9100 },
 }
