@@ -9,8 +9,8 @@ spec:
   nodeSelector: null
   postCommit:
     args:
-      - '--dev'
-      - '--daemon'
+      - '--test'
+      - '--lazy'
     command:
       - bin/apicast
   output:
