@@ -110,6 +110,9 @@ objects:
           - containerPort: 8090
             name: management
             protocol: TCP
+          - containerPort: 9421
+            name: metrics
+            protocol: TCP
           resources:
             limits:
                 cpu: '1'
@@ -157,6 +160,22 @@ objects:
       protocol: TCP
       port: 8090
       targetPort: management
+    selector:
+      deploymentconfig: apicast-${RELEASE_REF}
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: apicast-metrics-${RELEASE_REF}
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/path: '/metrics'
+  spec:
+    ports:
+    - name: metrics
+      protocol: TCP
+      port: 9421
+      targetPort: metrics
     selector:
       deploymentconfig: apicast-${RELEASE_REF}
 
