@@ -101,13 +101,18 @@ function _M:balancer()
   end
 end
 
+local status_map = setmetatable({
+  -- http://mailman.nginx.org/pipermail/nginx/2013-May/038773.html
+  [9] = 499,
+}, { __index = function(_, k) return tonumber(k) end })
+
 function _M.log()
   local upstream_status = tonumber(ngx.var.upstream_status)
 
   if upstream_status then
     increment(upstream_metric, upstream_status)
   else
-    increment(proxy_status_metric, ngx.status)
+    increment(proxy_status_metric, status_map[ngx.status])
   end
 end
 
