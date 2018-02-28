@@ -44,7 +44,7 @@ local rate_limits_metric = prometheus('counter', 'cloud_hosted_rate_limit', "Clo
 local delayed = { 'delayed ' }
 local rejected = { 'rejected' }
 
-function _M:access(context)
+function _M:rewrite(context)
   local limiter = self.limiter
 
   if not limiter then return nil, 'missing limiter' end
