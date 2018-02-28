@@ -22,7 +22,7 @@ builder: ## Build the builder image
 		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY)
 
 test: ## Run tests (try to start the image)
-	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --daemon --dev
+	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --test --lazy
 
 start: ## Start APIcast
 	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
