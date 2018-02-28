@@ -110,3 +110,41 @@ Sends the custom status code.
 ["GET /t", "GET /t"]
 --- error_code eval
 [200, 503]
+
+
+
+=== TEST 5: rate limit with APIcast policy
+Prints no errors when rate limited.
+--- environment_file: config/cloud_hosted.lua
+--- env eval
+('APICAST_RATE_LIMIT' => 1, 'APICAST_RATE_LIMIT_BURST' => 0)
+--- configuration
+{
+  "services": [
+    {
+      "backend_version": 1,
+      "proxy": {
+        "policy_chain": [
+          { "name": "apicast.policy.echo", "configuration": { } },
+          { "name": "apicast.policy.apicast" }
+        ],
+        "api_backend": "http://test:$TEST_NGINX_SERVER_PORT/",
+        "proxy_rules": [
+          { "pattern": "/", "http_method": "GET", "metric_system_name": "hits", "delta": 2 }
+        ]
+      }
+    }
+  ]
+}
+--- backend
+  location /transactions/authrep.xml {
+    content_by_lua_block {
+      ngx.exit(200)
+    }
+  }
+--- request eval
+["GET /t?user_key=foo", "GET /t?user_key=foo"]
+--- error_code eval
+[200, 429]
+--- no_error_log
+[error]

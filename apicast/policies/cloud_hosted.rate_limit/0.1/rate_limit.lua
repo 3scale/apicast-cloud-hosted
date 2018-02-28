@@ -44,6 +44,8 @@ local rate_limits_metric = prometheus('counter', 'cloud_hosted_rate_limit', "Clo
 local delayed = { 'delayed ' }
 local rejected = { 'rejected' }
 
+local proxy_stub = { post_action = function() end }
+
 function _M:rewrite(context)
   local limiter = self.limiter
 
@@ -58,6 +60,7 @@ function _M:rewrite(context)
     ngx.log(ngx.WARN, err, ' request over limit, key: ', key)
     if err == "rejected" then
       rate_limits_metric:inc(1, rejected)
+      context.proxy = proxy_stub -- to silence complaining apicast policy
       return ngx.exit(status)
     end
     ngx.log(ngx.ERR, "failed to limit req: ", err)
