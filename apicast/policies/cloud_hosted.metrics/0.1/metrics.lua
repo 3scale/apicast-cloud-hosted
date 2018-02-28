@@ -28,6 +28,10 @@ end
 
 local empty = {}
 
+local function get_logs(max)
+  return errlog.get_logs(max) or empty
+end
+
 function _M.new(configuration)
   local m = new()
 
@@ -42,12 +46,16 @@ function _M.new(configuration)
   end
 
   m.filter_level = i
+  -- how many logs to take in one iteration
+  m.max_logs = tonumber(config.max_logs) or 100
 
   return m
 end
 
 function _M:init()
   local ok, err = errlog.set_filter_level(self.filter_level)
+
+  get_logs(100) -- to throw them away after setting the filter level (and get rid of debug ones)
 
   if not ok then
     ngx.log(ngx.WARN, self._NAME, ' failed to set errlog filter level: ', err)
@@ -57,8 +65,8 @@ end
 local logs_metric = prometheus('counter', 'nginx_error_log', "Items in nginx error log", {'level'})
 local http_connections_metric =  prometheus('gauge', 'nginx_http_connections', 'Number of HTTP connections', {'state'})
 
-function _M.metrics()
-  local logs = errlog.get_logs() or empty
+function _M:metrics()
+  local logs = get_logs(self.max_logs)
   local labels = {}
 
   for i = 1, #logs, 3 do
