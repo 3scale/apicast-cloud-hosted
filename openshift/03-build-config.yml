@@ -7,12 +7,12 @@ metadata:
 status:
 spec:
   nodeSelector: null
-  #postCommit:
-  #  args:
-  #    - '--dev'
-  #    - '--daemon'
-  #  command:
-  #    - bin/apicast
+  postCommit:
+    args:
+      - '--dev'
+      - '--daemon'
+    command:
+      - bin/apicast
   output:
     to:
       kind: ImageStreamTag
