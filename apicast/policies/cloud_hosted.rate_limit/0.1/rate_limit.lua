@@ -50,7 +50,7 @@ function _M:access(context)
   if not limiter then return nil, 'missing limiter' end
 
   local key = context.host or ngx.var.host
-  local status = self.status or 503
+  local status = self.status or 429
 
   local delay, err = limiter:incoming(key, true)
 

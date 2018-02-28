@@ -55,7 +55,7 @@ The module does rate limiting.
 --- request eval
 ["GET /t", "GET /t"]
 --- error_code eval
-[200, 503]
+[200, 429]
 --- grep_error_log
 rejected request over limit, key: localhost
 --- grep_error_log_out eval
@@ -99,7 +99,7 @@ Sends the custom status code.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "status": 429 } },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "status": 503 } },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -109,4 +109,4 @@ Sends the custom status code.
 --- request eval
 ["GET /t", "GET /t"]
 --- error_code eval
-[200, 429]
+[200, 503]
