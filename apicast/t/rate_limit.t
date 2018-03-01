@@ -55,7 +55,7 @@ The module does rate limiting.
 --- request eval
 ["GET /t", "GET /t"]
 --- error_code eval
-[200, 503]
+[200, 429]
 --- grep_error_log
 rejected request over limit, key: localhost
 --- grep_error_log_out eval
@@ -99,7 +99,7 @@ Sends the custom status code.
     {
       "proxy": {
         "policy_chain": [
-          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "status": 429 } },
+          { "name": "cloud_hosted.rate_limit", "version": "0.1", "configuration": { "limit": 1, "status": 503 } },
           { "name": "apicast.policy.echo", "configuration": { } }
         ]
       }
@@ -109,4 +109,42 @@ Sends the custom status code.
 --- request eval
 ["GET /t", "GET /t"]
 --- error_code eval
+[200, 503]
+
+
+
+=== TEST 5: rate limit with APIcast policy
+Prints no errors when rate limited.
+--- environment_file: config/cloud_hosted.lua
+--- env eval
+('APICAST_RATE_LIMIT' => 1, 'APICAST_RATE_LIMIT_BURST' => 0)
+--- configuration
+{
+  "services": [
+    {
+      "backend_version": 1,
+      "proxy": {
+        "policy_chain": [
+          { "name": "apicast.policy.echo", "configuration": { } },
+          { "name": "apicast.policy.apicast" }
+        ],
+        "api_backend": "http://test:$TEST_NGINX_SERVER_PORT/",
+        "proxy_rules": [
+          { "pattern": "/", "http_method": "GET", "metric_system_name": "hits", "delta": 2 }
+        ]
+      }
+    }
+  ]
+}
+--- backend
+  location /transactions/authrep.xml {
+    content_by_lua_block {
+      ngx.exit(200)
+    }
+  }
+--- request eval
+["GET /t?user_key=foo", "GET /t?user_key=foo"]
+--- error_code eval
 [200, 429]
+--- no_error_log
+[error]

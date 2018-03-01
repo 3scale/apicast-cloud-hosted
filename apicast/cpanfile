@@ -1,1 +1,1 @@
-requires 'Test::APIcast', '0.04';
+requires 'Test::APIcast', '0.11';
