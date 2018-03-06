@@ -1,23 +1,23 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: "apicast-cloud-hosted"
+  name: "apicast-cloud-hosted-deployment"
 objects:
 
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: apicast-mapping-service
+    name: apicast-mapping-service-${RELEASE_REF}
   spec:
     replicas: 1
     selector:
-      deploymentconfig: apicast-mapping-service
+      deploymentconfig: apicast-mapping-service-${RELEASE_REF}
     strategy:
       type: Rolling
     template:
       metadata:
         labels:
-          deploymentconfig: apicast-mapping-service
+          deploymentconfig: apicast-mapping-service-${RELEASE_REF}
       spec:
         containers:
         - name: apicast-mapping-service
@@ -50,23 +50,30 @@ objects:
           - containerPort: 8090
             name: management
             protocol: TCP
+          resources:
+            limits:
+                cpu: '1'
+                memory: 128Mi
+            requests:
+                cpu: 500m
+                memory: 64Mi
     triggers:
     - type: ConfigChange
 
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
-    name: apicast
+    name: apicast-${RELEASE_REF}
   spec:
     replicas: 1
     selector:
-      deploymentconfig: apicast
+      deploymentconfig: apicast-${RELEASE_REF}
     strategy:
       type: Rolling
     template:
       metadata:
         labels:
-          deploymentconfig: apicast
+          deploymentconfig: apicast-${RELEASE_REF}
       spec:
         containers:
         - env:
@@ -77,8 +84,10 @@ objects:
           - name: THREESCALE_DEPLOYMENT_ENV
             value: "${ENVIRONMENT}"
           - name: THREESCALE_PORTAL_ENDPOINT
-            value: "http://apicast-mapping-service/config"
-          image: "${APICAST_IMAGE}"
+            value: "http://apicast-mapping-service-${RELEASE_REF}/config"
+          - name: APICAST_OIDC_LOG_LEVEL
+            value: "notice"
+          image: apicast-cloud-hosted:${RELEASE_REF}
           imagePullPolicy: IfNotPresent
           name: apicast
           livenessProbe:
@@ -101,13 +110,30 @@ objects:
           - containerPort: 8090
             name: management
             protocol: TCP
+          - containerPort: 9421
+            name: metrics
+            protocol: TCP
+          resources:
+            limits:
+                cpu: '1'
+                memory: 128Mi
+            requests:
+                cpu: 500m
+                memory: 64Mi
     triggers:
-    - type: ConfigChange
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - apicast
+          from:
+            kind: ImageStreamTag
+            name: apicast-cloud-hosted:${RELEASE_REF}
 
 - apiVersion: v1
   kind: Service
   metadata:
-    name: apicast-mapping-service
+    name: apicast-mapping-service-${RELEASE_REF}
   spec:
     ports:
     - name: mapping
@@ -115,15 +141,15 @@ objects:
       protocol: TCP
       targetPort: mapping
     selector:
-      deploymentconfig: apicast-mapping-service
+      deploymentconfig: apicast-mapping-service-${RELEASE_REF}
 
 - apiVersion: v1
   kind: Service
   metadata:
-    name: apicast
+    name: apicast-${RELEASE_REF}
     annotations:
       service.alpha.openshift.io/dependencies: |-
-        [{"name": "apicast-mapping-service", "kind": "Service"}]
+        [{"name": "apicast-mapping-service-${RELEASE_REF}", "kind": "Service"}]
   spec:
     ports:
     - name: proxy
@@ -135,27 +161,30 @@ objects:
       port: 8090
       targetPort: management
     selector:
-      deploymentconfig: apicast
+      deploymentconfig: apicast-${RELEASE_REF}
 
 - apiVersion: v1
-  kind: Route
+  kind: Service
   metadata:
-    name: apicast-router
-    labels:
-      app: apicast-router
+    name: apicast-metrics-${RELEASE_REF}
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/path: '/metrics'
+      prometheus.io/port: '9421'
   spec:
-    host: apicast.${ENVIRONMENT}.gw.apicast.io
-    to:
-      kind: Service
-      name: apicast
-    port:
-      targetPort: proxy
-    wildcardPolicy: Subdomain
-    tls:
-      termination: edge
-      insecureEdgeTerminationPolicy: Allow
+    ports:
+    - name: metrics
+      protocol: TCP
+      port: 9421
+      targetPort: metrics
+    selector:
+      deploymentconfig: apicast-${RELEASE_REF}
 
 parameters:
+
+- description: "Release version reference"
+  name: RELEASE_REF
+  required: true
 
 - description: "Deployment environment. `staging` or `production`"
   name: ENVIRONMENT
@@ -168,14 +197,10 @@ parameters:
 - name: MAPPING_SERVICE_IMAGE
   description: "Mapping Service image name. Used to discover proxy configurations."
   required: true
-  value: "quay.io/3scale/apicast-cloud-hosted:mapping-service-v3.0.0-cloud1"
-
-- name: APICAST_IMAGE
-  description: "APIcast image name."
-  required: true
-  value: "quay.io/3scale/apicast-cloud-hosted:apicast-v3.0.0-cloud1"
+  value: "quay.io/3scale/apicast-cloud-hosted:mapping-service-master"
 
 - name: MASTER_ACCESS_TOKEN_SECRET
   description: "Secret name that containts System Master Access Token password"
   required: true
   value: 'master-access-token-secret'
+

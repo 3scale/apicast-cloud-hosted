@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  name: apicast-cloud-hosted
+  labels:
+    app: apicast-cloud-hosted
+spec:
+  tags:
+  - name: latest
+    annotations:
+      openshift.io/display-name: APIcast Cloud Hosted (latest) 
+    from:
+      kind: ImageStreamTag
+      name: latest
