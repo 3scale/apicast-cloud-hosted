@@ -16,7 +16,7 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: apicast-cloud-hosted:latest
+      name: apicast-cloud-hosted:apicast-master
   source:
     contextDir: /apicast
     git:

@@ -1,10 +1,10 @@
-.PHONY: all imagestream buildconfig deploy route help 
+.PHONY: all imagestream buildconfig deploy route help
 .DEFAULT_GOAL := help
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 THISDIR_PATH := $(patsubst %/,%,$(abspath $(dir $(MKFILE_PATH))))
 
-all: imagestream buildconfig deploy route  
+all: imagestream buildconfig deploy route
 
 imagestream: ## Create the Imagestreams (APIcast and Builder APICast).
 	oc create -f $(THISDIR_PATH)/01-apicast-cloud-hosted-imagestream.yml
@@ -12,12 +12,13 @@ imagestream: ## Create the Imagestreams (APIcast and Builder APICast).
 
 buildconfig: ## Create the BuildConfig.
 	oc create -f $(THISDIR_PATH)/03-build-config.yml
+	oc create -f $(THISDIR_PATH)/06-apicast-cloud-hosted-build-config-policy-disabler.yml
 
-deploy: ## Create the BuildConfig. Parameters: RELEASE_REF, ENVIRONMENT, CACHE_TTL.   
+deploy: ## Create the BuildConfig. Parameters: RELEASE_REF, ENVIRONMENT, CACHE_TTL.
 	oc new-app -f $(THISDIR_PATH)/04-deployment-template.yml \
 		-p RELEASE_REF=${RELEASE_REF} \
 		-p ENVIRONMENT=${ENVIRONMENT} \
-		-p CACHE_TTL=${CACHE_TTL} 
+		-p CACHE_TTL=${CACHE_TTL}
 
 route: ## Create the Routes.Parameters: WILDCARD_DOMAIN, ENVIRONMENT.
 	oc new-app -f $(THISDIR_PATH)/05-routes.yml \

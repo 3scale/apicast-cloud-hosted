@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: apicast-cloud-hosted
+  name: apicast-cloud-hosted-policy-disabler
+spec:
+  nodeSelector: null
+  postCommit:
+    args:
+      - '--test'
+      - '--lazy'
+    command:
+      - bin/apicast
+  output:
+    to:
+      kind: ImageStreamTag
+      name: apicast-cloud-hosted:saas-master
+  source:
+    type: Dockerfile
+    dockerfile: |
+      #this dummy FROM will be rewritten by the dockerStrategy
+      FROM scratch
+
+      USER root
+
+      RUN rm -f src/apicast/policy/{rate_limit,token_introspection}/apicast-policy.json
+
+      USER 1001
+
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: apicast-cloud-hosted:apicast-master
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+
