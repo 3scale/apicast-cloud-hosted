@@ -24,7 +24,7 @@ spec:
 
       USER root
 
-      RUN rm -f src/apicast/policy/{rate_limit,token_introspection}/apicast-policy.json
+      RUN rm -f src/apicast/policy/{rate_limit,token_introspection,3scale_batcher}/apicast-policy.json
 
       USER 1001
 
