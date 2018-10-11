@@ -4,11 +4,11 @@ inspect 3.1.1-0||development,test
 liquid 0.1.0-1||development,test
 ljsonschema 0.1.0-1||development,test
 lua-resty-env 0.4.0-1||development,test
-lua-resty-execvp 0.1.0-1||development,test
+lua-resty-execvp 0.1.1-1||development,test
 lua-resty-http 0.12-0||development,test
 lua-resty-iputils 0.3.0-1||production
 lua-resty-jit-uuid 0.0.7-1|64ae38de75c9d58f330d89e140ac872771c19223|development,test
-lua-resty-jwt 0.1.11-0||development,test
+lua-resty-jwt 0.2.0-0||development,test
 lua-resty-repl 0.0.6-0|3878f41b7e8f97b1c96919db19dbee9496569dda|development,test
 lua-resty-url 0.2.0-1||development,test
 luafilesystem 1.7.0-2||development,test
