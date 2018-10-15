@@ -7,5 +7,6 @@ luarocks {
 	group { 'development', 'test' } {
 		module { 'apicast' },
 		module { 'lua-resty-repl' },
+		module { 'ljsonschema' },
 	}
 }
