@@ -1,6 +1,7 @@
 local iputils = require("resty.iputils")
 local default_balancer = require('resty.balancer.round_robin').call
 local resty_balancer = require('resty.balancer')
+local apicast_balancer = require('apicast.balancer')
 local prometheus = require('apicast.prometheus')
 local split = require('ngx.re').split
 local tonumber = tonumber
@@ -85,19 +86,14 @@ local balancer_with_blacklist = resty_balancer.new(function(peers)
   end
 end)
 
-function _M:balancer()
-  local balancer = balancer_with_blacklist
-  local host = ngx.var.proxy_host -- NYI: return to lower frame
-  local peers = balancer:peers(ngx.ctx[host])
+function _M:balancer(context)
+  local ok, err = apicast_balancer:call(context, balancer_with_blacklist)
 
-  local peer, err = balancer:set_peer(peers)
-
-  if not peer then
-    ngx.status = ngx.HTTP_SERVICE_UNAVAILABLE
-    ngx.log(ngx.ERR, "failed to set current backend peer: ", err)
-    ngx.exit(ngx.status)
-  else
+  if ok then
     increment(balancer_metric, 'success')
+    return ok
+  else
+    return nil, err
   end
 end
 
