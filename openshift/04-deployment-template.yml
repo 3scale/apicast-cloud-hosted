@@ -87,6 +87,8 @@ objects:
             value: "http://apicast-mapping-service-${RELEASE_REF}/config"
           - name: APICAST_OIDC_LOG_LEVEL
             value: "notice"
+          - name: APICAST_RESPONSE_CODES
+            value: "${RESPONSE_CODES}"
           image: apicast-cloud-hosted:saas-${RELEASE_REF}
           imagePullPolicy: IfNotPresent
           name: apicast
@@ -203,4 +205,9 @@ parameters:
   description: "Secret name that containts System Master Access Token password"
   required: true
   value: 'master-access-token-secret'
+
+- description: "Enable logging response codes to 3scale."
+  value: "true"
+  name: RESPONSE_CODES
+  required: true
 
