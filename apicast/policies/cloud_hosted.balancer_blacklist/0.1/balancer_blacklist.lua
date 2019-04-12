@@ -107,9 +107,9 @@ function _M.log()
 
   if upstream_status then
     increment(upstream_metric, upstream_status)
-  else
-    increment(proxy_status_metric, status_map[ngx.status])
   end
+
+  increment(proxy_status_metric, status_map[ngx.status])
 end
 
 return _M
