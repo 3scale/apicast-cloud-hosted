@@ -7,7 +7,7 @@
 1. `oc secret new-basicauth master-access-token-secret --password=MASTER_ACCESS_TOKEN`
 1. `make imagestream` to deploy the imageStreams (Apicast Cloud Hosted and Apicast Builder)
 1. `make buildconfig` to create the BuildConfig
-1. `make deploy RELEASE_REF=release_number ENVIRONMENT=staging CACHE_TTL=0` - (with `ENVIRONMENT=production CACHE_TTL=300` for production or  `ENVIRONMENT=staging CACHE_TTL=0` for staging)
+1. `make deploy RELEASE_REF=release_number ENVIRONMENT=staging CACHE_TTL=30` - (with `ENVIRONMENT=production CACHE_TTL=300` for production or  `ENVIRONMENT=staging CACHE_TTL=30` for staging)
 1. `make route ENVIRONMENT=staging WILDCARD_DOMAIN=cluster.wildcard.domain.com` -  Wildcard Domain Concatenation: `apicast.${ENVIRONMENT}.${WILDCARD_DOMAIN}`
 
 # Example of canary deploy
@@ -41,7 +41,7 @@
 
 ```bash
     $ oc project apicast-staging
-    $ make deploy RELEASE_REF=v3-5-0-beta1 ENVIRONMENT=staging CACHE_TTL=0
+    $ make deploy RELEASE_REF=v3-5-0-beta1 ENVIRONMENT=staging CACHE_TTL=30
 ```
 
 * Update both Routes pointing to new services version `v3-5-0-beta1` with weight 0 by the moment (leaving old but productive version `v3-4-0` with weight 100).
