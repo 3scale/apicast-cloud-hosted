@@ -1,4 +1,0 @@
-[submodule "mapping-service/apicast"]
-	path = mapping-service/apicast
-	url = git://github.com/3scale/apicast.git
-	ignore = dirty

@@ -5,10 +5,11 @@ my $pwd = cwd();
 my $apicast = $ENV{TEST_NGINX_APICAST_PATH} || "$pwd";
 
 $ENV{TEST_NGINX_LUA_PATH} = "$pwd/src/?.lua;$pwd/?.lua;;";
-$ENV{TEST_NGINX_SERVER_CONFIG} = "$apicast/server.conf";
+$ENV{TEST_NGINX_SERVER_CONFIG} = "$apicast/sites.d/mapping-service.conf";
 
 log_level('debug');
 repeat_each(2);
+no_shuffle();
 no_root_location();
 run_tests();
 
@@ -23,7 +24,7 @@ __DATA__
 === TEST 1: load configs
 --- main_config
 env RESOLVER=127.0.0.1;
-env API_HOST=http://localhost:8081;
+env API_HOST=http://127.0.0.1:8081;
 env MASTER_ACCESS_TOKEN=some-token;
 --- http_config
   lua_package_path "$TEST_NGINX_LUA_PATH";
@@ -45,12 +46,6 @@ env MASTER_ACCESS_TOKEN=some-token;
             end
         }
     }
-  }
-
-  server {
-    listen 8081;
-    server_name 127.0.0.1;
-
     location /admin/api/services/proxy/configs/sandbox.json {
         content_by_lua_block {
             if ngx.var.arg_host == 'api-test-2.production.apicast.io' then
