@@ -24,7 +24,7 @@ builder: ## Build the builder image
 test: ## Run tests (try to start the image)
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --test --lazy
 
-start: ## Start APIcast
+start: ## Start APIcast in foreground
 	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
 
 push: ## Push image to the registry
@@ -38,3 +38,5 @@ help: ## Print this help
 
 clean:
 	rm -rf lua_modules
+
+# --env-file=env_file_name
