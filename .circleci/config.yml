@@ -26,7 +26,7 @@ jobs:
 
   apicast-test:
     docker:
-      - image: quay.io/3scale/s2i-openresty-centos7:master
+      - image: quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
         environment:
           TEST_NGINX_BINARY: openresty
           LUA_BIN_PATH: /opt/app-root/bin
