@@ -64,12 +64,20 @@ jobs:
           destination: tmp
       - store_test_results:
           path: apicast/tmp/junit
+
 workflows:
-  version: 2
   build_and_test:
     jobs:
-      - apicast-test
+      - apicast-test:
+          filters: # required since `release` has tag filters AND requires `apicast-test`
+            tags:
+              only: /.*/
       - deploy:
           context: org-global
           requires:
             - apicast-test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
