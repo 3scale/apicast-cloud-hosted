@@ -1,1 +1,3 @@
+requires 'TAP::Harness::JUnit'; 
 requires 'Test::APIcast', '0.19';
+

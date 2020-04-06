@@ -2,7 +2,8 @@ BEGIN {
     $ENV{TEST_NGINX_APICAST_BINARY} ||= 'APICAST_MODULE="" rover exec ./lua_modules/bin/apicast';
     $ENV{APICAST_MODULE} = 'cloud_hosted.module';
     $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
-    $ENV{LUA_PATH} = './src/?.lua;;';
+    $ENV{LUA_PATH} = $ENV{LUA_PATH} . ';./src/?.lua;;';
+    $ENV{DEBUG} = 1;
 }
 
 use strict;
