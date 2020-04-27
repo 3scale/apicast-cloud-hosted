@@ -11,6 +11,7 @@ REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
 LOG_LEVEL ?= notice
 LOGLEVEL ?= 2
 PULL_POLICY ?= always
+S2I_OPENRESTY_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
 
 build: ## Build the image
 	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
@@ -24,7 +25,9 @@ builder: ## Build the builder image
 test: ## Run tests (try to start the image)
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --test --lazy
 
-start: ## Start APIcast in foreground
+
+
+start: ## Start APIcast
 	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
 
 push: ## Push image to the registry
@@ -37,6 +40,20 @@ help: ## Print this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 clean:
-	rm -rf lua_modules
+	rm -rf lua_modules .cache t/servroot .cpanm perl5 tmp
 
-# --env-file=env_file_name
+DOCKER_PROVE_CMD ?= mkdir -p tmp/junit && /usr/libexec/s2i/entrypoint sh -c 'rover exec prove --harness=TAP::Harness::JUnit'
+docker-prove:
+	docker run --rm -it -u $(shell id -u)  \
+		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
+		-eTEST_NGINX_BINARY=openresty \
+		-eLUA_BIN_PATH=/opt/app-root/bin \
+		-eTEST_NGINX_SERVROOT=/tmp/servroot \
+		-eJUNIT_OUTPUT_FILE=tmp/junit/prove.xml \
+		-eTEST_NGINX_ERROR_LOG=tmp/prove.log \
+		$(S2I_OPENRESTY_IMAGE)  make docker-exec CMD="$(DOCKER_PROVE_CMD)"
+
+docker-exec: ## target to execute commands inside the $(S2I_OPENRESTY_IMAGE), mainly to execute tests both locally and in the CI
+	rover install
+	/usr/libexec/s2i/entrypoint cpanm --notest --installdeps .
+	$(CMD)

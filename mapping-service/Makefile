@@ -11,6 +11,8 @@ REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
 LOG_LEVEL ?= notice
 LOGLEVEL ?= 2
 PULL_POLICY ?= always
+S2I_OPENRESTY_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
+
 
 build: ## Build the image
 	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
@@ -34,37 +36,24 @@ start: .env ## Start APIcast
 test: ## Run all tests
 	$(MAKE) --keep-going docker-busted docker-prove build test-image
 
-# The following command deploys mapping-service into the apicast-$(APICAST_VERSION)-builder image
-define DOCKER_CMD
-bash -c \
-		'ln -s /tmp/src/main.d/mapping-service.conf ~/main.d/mapping-service.conf && \
-		 ln -s /tmp/src/sites.d/mapping-service.conf ~/sites.d/mapping-service.conf && \
-		 ln -s /tmp/src/spec ~/spec && \
-		 ln -s /tmp/src/t ~/t && \
-		 ln -s /tmp/src/src/mapping_service.lua ~/src/mapping_service.lua && \
-		 ln -sf /tmp/src/Makefile ~/Makefile &&
-endef
-
-DOCKER_SHELL_CMD := $(DOCKER_CMD) bash'
-shell: ## Opens a shell to the apicast-$(APICAST_VERSION)-builder with all mapping-services code in place. Can be used to execute tests while developing
-shell:
-	docker run -it --rm -v $$(pwd):/tmp/src  $(BUILDER_IMAGE) $(DOCKER_SHELL_CMD)
-
 busted: ## Run lua tests
-	IMAGE_TAG=master busted
-
-DOCKER_BUSTED_CMD := $(DOCKER_CMD) busted'
-docker-busted: ## Run lua tests in the mapping-service-$(APICAST_VERSION)-builder image
-	# docker run -it --rm --env-file=.env $(LOCAL_IMAGE_NAME)-builder busted
-	docker run --rm -it -v $$(pwd):/tmp/src $(BUILDER_IMAGE) $(DOCKER_BUSTED_CMD)
+	busted
 
 prove: ## Run Test::Nginx
 prove: /tmp/servroot
 	TEST_NGINX_BINARY=openresty TEST_NGINX_CLIENT_PORT=8093 TEST_NGINX_SERVROOT=/tmp/servroot prove
 
-DOCKER_PROVE_CMD := $(DOCKER_CMD) prove'
-docker-prove: ## Run Test::Nginx in the mapping-service-$(APICAST_VERSION)-builder image
-	docker run --rm -it -v $$(pwd):/tmp/src \
+#### Execute tests inside docker
+docker-exec: ## target to execute commands inside the $(S2I_OPENRESTY_IMAGE), mainly to execute tests both locally and in the CI
+	rover install
+	/usr/libexec/s2i/entrypoint cpanm --notest --installdeps .
+	$(CMD)
+
+
+DOCKER_PROVE_CMD ?= mkdir -p tmp/junit && /usr/libexec/s2i/entrypoint sh -c 'rover exec prove --harness=TAP::Harness::JUnit'
+docker-prove: ## Run Test::Nginx in the $(S2I_OPENRESTY_IMAGE) image
+	docker run --rm -it -u $(shell id -u)  \
+		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
 		-eTEST_NGINX_BINARY=openresty \
 		-eTEST_NGINX_CLIENT_PORT=8093 \
 		-eTEST_NGINX_SERVROOT=/tmp/servroot \
