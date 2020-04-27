@@ -1,3 +1,8 @@
-t/servroot
 logs/
 .env
+lua_modules
+.cache
+t/servroot
+.cpanm
+perl5
+tmp

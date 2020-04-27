@@ -1,0 +1,6 @@
+luarocks {
+	group { 'development', 'test' } {
+		module { 'apicast' },
+		module { 'busted' },
+	}
+}
