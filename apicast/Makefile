@@ -1,13 +1,14 @@
 .DEFAULT_GOAL := help
 
 APICAST_VERSION ?= v3.8.0
+RELEASE ?= local
+IMAGE_TAG ?= apicast-$(APICAST_VERSION)-$(RELEASE)
 RUNTIME_IMAGE ?= quay.io/3scale/apicast:$(APICAST_VERSION)
 BUILDER_IMAGE ?= $(RUNTIME_IMAGE)-builder
-IMAGE_TAG ?= apicast-$(APICAST_VERSION)
 IMAGE_NAME ?= apicast-cloud-hosted
 REGISTRY ?= quay.io/3scale
-LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):apicast-$(IMAGE_TAG)
-REMOTE_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
+LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):$(IMAGE_TAG)
+REMOTE_IMAGE_NAME ?= ${REGISTRY}/$(IMAGE_NAME):$(IMAGE_TAG)
 LOG_LEVEL ?= notice
 LOGLEVEL ?= 2
 PULL_POLICY ?= always
@@ -22,11 +23,13 @@ builder: ## Build the builder image
 	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
 		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY)
 
+push: ## Push image to the registry
+	docker tag $(LOCAL_IMAGE_NAME) $(REMOTE_IMAGE_NAME)
+	docker push $(REMOTE_IMAGE_NAME)
+
 test-image: ## Run tests (try to start the image)
 test-image: build
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --test --lazy
-
-
 
 start: ## Start APIcast
 start: build
