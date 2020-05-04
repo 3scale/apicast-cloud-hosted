@@ -104,7 +104,7 @@ jobs:
           path: mapping-service/tmp/junit
 
 workflows:
-  build_and_test:
+  test_build_deploy:
     jobs:
       - apicast-test:
           filters: # required since `release` has tag filters AND requires `apicast-test`
