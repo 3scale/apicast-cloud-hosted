@@ -9,7 +9,7 @@ lua-resty-jit-uuid 0.0.7-1|64ae38de75c9d58f330d89e140ac872771c19223|development,
 lua-resty-jwt 0.2.0-0||development,test
 lua-resty-url 0.3.5-1||development,test
 luafilesystem 1.7.0-2||development,test
-nginx-lua-prometheus 0.20171117-4||development,test
+nginx-lua-prometheus nginx-lua-prometheus 0.20181120-3||production,development,test
 penlight 1.5.4-1||development,test
 router 2.1-0||development,test
 busted 2.0.0-1||development,test
