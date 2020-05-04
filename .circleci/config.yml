@@ -12,8 +12,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           reusable: true
-      - run: cd apicast && make builder test
-      - run: cd apicast && make build test
+      - run: cd apicast && && make build IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
       - run: cd mapping-service && make build IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
       - deploy:
           name: Push docker image

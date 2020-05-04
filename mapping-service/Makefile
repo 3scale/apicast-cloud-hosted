@@ -3,7 +3,7 @@
 APICAST_VERSION ?= v3.8.0
 RUNTIME_IMAGE ?= quay.io/3scale/apicast:$(APICAST_VERSION)
 BUILDER_IMAGE ?= $(RUNTIME_IMAGE)-builder
-IMAGE_TAG ?= $(APICAST_VERSION)
+IMAGE_TAG ?= mapping-service-$(APICAST_VERSION)
 IMAGE_NAME ?= apicast-cloud-hosted
 REGISTRY ?= quay.io/3scale
 LOCAL_IMAGE_NAME ?= $(IMAGE_NAME):mapping-service-$(IMAGE_TAG)
@@ -20,13 +20,15 @@ build: ## Build the image
 		--pull-policy=$(PULL_POLICY) --runtime-pull-policy=$(PULL_POLICY)
 
 builder: ## Build the builder image
-	s2i .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME)-builder \
-		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY) --local
+	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME)-builder \
+		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY)
 
 test-image: ## Run tests (try to start the image)
+test-image: build
 	docker run -it --rm $(LOCAL_IMAGE_NAME) bin/apicast --test --lazy
 
 start: .env ## Start APIcast
+start: build
 	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
 
 .env:
@@ -34,11 +36,13 @@ start: .env ## Start APIcast
 
 #### Testing
 test: ## Run all tests
-	$(MAKE) --keep-going docker-busted docker-prove build test-image
+	$(MAKE) --keep-going docker-busted docker-prove test-image
 
 busted: ## Run lua tests
 	busted
 
+/tmp/servroot:
+	mkdir -p $@
 prove: ## Run Test::Nginx
 prove: /tmp/servroot
 	TEST_NGINX_BINARY=openresty TEST_NGINX_CLIENT_PORT=8093 TEST_NGINX_SERVROOT=/tmp/servroot prove
@@ -50,15 +54,15 @@ docker-exec: ## target to execute commands inside the $(S2I_OPENRESTY_IMAGE), ma
 	$(CMD)
 
 
-DOCKER_PROVE_CMD ?= mkdir -p tmp/junit && /usr/libexec/s2i/entrypoint sh -c 'rover exec prove --harness=TAP::Harness::JUnit'
+DOCKER_PROVE_CMD ?= mkdir -p /tmp/junit && /usr/libexec/s2i/entrypoint sh -c 'rover exec prove --harness=TAP::Harness::JUnit'
 docker-prove: ## Run Test::Nginx in the $(S2I_OPENRESTY_IMAGE) image
 	docker run --rm -it -u $(shell id -u)  \
 		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
 		-eTEST_NGINX_BINARY=openresty \
 		-eTEST_NGINX_CLIENT_PORT=8093 \
 		-eTEST_NGINX_SERVROOT=/tmp/servroot \
-		-eJUNIT_OUTPUT_FILE=tmp/junit/prove.xml \
-		-eTEST_NGINX_ERROR_LOG=tmp/prove.log \
+		-eJUNIT_OUTPUT_FILE=/tmp/junit/prove.xml \
+		-eTEST_NGINX_ERROR_LOG=/tmp/prove.log \
 		$(S2I_OPENRESTY_IMAGE)  make docker-exec CMD="$(DOCKER_PROVE_CMD)"
 
 DOCKER_BUSTED_CMD := busted
