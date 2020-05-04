@@ -3,8 +3,6 @@ jobs:
   deploy:
     docker:
       - image: quay.io/3scale/s2i:v1.1.11-ce
-        environment:
-          APICAST_VERSION: master
     environment:
       DOCKER_REGISTRY: "quay.io"
     working_directory: /root/apicast-cloud
@@ -12,15 +10,15 @@ jobs:
       - checkout
       - setup_remote_docker:
           reusable: true
-      - run: cd apicast && && make build IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
-      - run: cd mapping-service && make build IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
+      - run: cd apicast && make build RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
+      - run: cd mapping-service && make build RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}}
       - deploy:
           name: Push docker image
           command: |
             if [ -n "${CIRCLE_TAG}" ] || [ -n "${CIRCLE_BRANCH}" ]; then
               docker login -u="${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}" "${DOCKER_REGISTRY}"
-              (cd apicast && make push REMOTE_IMAGE_NAME=apicast-cloud-hosted:apicast-${CIRCLE_TAG:-${CIRCLE_BRANCH}})
-              (cd mapping-service && make push IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}})
+              (cd apicast && make push RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}})
+              (cd mapping-service && make push RELEASE=${CIRCLE_TAG:-${CIRCLE_BRANCH}})
             fi
 
   apicast-test:
@@ -122,6 +120,6 @@ workflows:
             - apicast-test
           filters:
             tags:
-              only: /^v.*/
+              only: /^r.*/
             branches:
               ignore: /.*/
