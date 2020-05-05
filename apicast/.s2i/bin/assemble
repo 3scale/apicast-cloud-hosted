@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo ">>>>>> Execute assemble script"
+/usr/libexec/s2i/assemble
+
+echo ">>>>>> Remove apicast-cloud-hosted disallowed policies"
+rm -vf src/apicast/policy/{rate_limit,token_introspection,3scale_batcher,conditional,logging,retry,upstream_connection}/apicast-policy.json

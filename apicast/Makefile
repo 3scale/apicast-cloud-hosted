@@ -16,11 +16,6 @@ S2I_OPENRESTY_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
 
 build: ## Build the image
 	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
-		--runtime-image=$(RUNTIME_IMAGE) --loglevel=$(LOGLEVEL) \
-		--pull-policy=$(PULL_POLICY) --runtime-pull-policy=$(PULL_POLICY)
-
-builder: ## Build the builder image
-	s2i build .  $(BUILDER_IMAGE) $(LOCAL_IMAGE_NAME) \
 		--loglevel=$(LOGLEVEL) --pull-policy=$(PULL_POLICY)
 
 push: ## Push image to the registry
@@ -37,7 +32,7 @@ start: build
 
 #### Testing
 test: ## Run all tests
-	$(MAKE) --keep-going docker-busted docker-prove build test-image
+	$(MAKE) --keep-going docker-prove build test-image
 
 /tmp/servroot:
 	mkdir -p $@
