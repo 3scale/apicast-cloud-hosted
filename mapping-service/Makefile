@@ -34,7 +34,8 @@ test-image: build
 
 start: .env ## Start APIcast
 start: build
-	docker run -it --publish 8080:8080 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
+	docker run -it --publish 8093:8093 --env-file=.env --env APICAST_LOG_LEVEL=$(LOG_LEVEL) --rm $(LOCAL_IMAGE_NAME) bin/apicast --lazy --dev
+	# How to test: curl "http://127.0.0.1:8093/config/staging.json?host=api-2445583083201.staging.gw.apicast.io" -H "host: mapping-service-staging"
 
 .env:
 	cp $@.example $@
