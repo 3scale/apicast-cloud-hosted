@@ -63,5 +63,5 @@ location /t {
 GET /t
 --- error_code: 503
 --- error_log
-could not select peer: blacklisted while connecting to upstream
+could not select peer:
 

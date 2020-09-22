@@ -1,6 +1,7 @@
 BEGIN {
     $ENV{TEST_NGINX_APICAST_BINARY} ||= 'rover exec apicast';
     $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
+    $ENV{DEBUG} = '1';
 }
 
 use strict;

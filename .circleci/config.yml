@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   deploy:
     docker:
@@ -19,14 +19,14 @@ jobs:
           name: Push docker image
           command: |
             if [ -n "${CIRCLE_TAG}" ] || [ -n "${CIRCLE_BRANCH}" ]; then
-              docker login -u="${DOCKER_USERNAME}" --password-stdin "${DOCKER_REGISTRY}" <<< "${DOCKER_PASSWORD}"
+              docker login -u="${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}" "${DOCKER_REGISTRY}"
               (cd apicast && make push REMOTE_IMAGE_NAME=apicast-cloud-hosted:apicast-${CIRCLE_TAG:-${CIRCLE_BRANCH}})
               (cd mapping-service && make push IMAGE_TAG=${CIRCLE_TAG:-${CIRCLE_BRANCH}})
             fi
 
   apicast-test:
     docker:
-      - image: quay.io/3scale/s2i-openresty-centos7:master
+      - image: quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
         environment:
           TEST_NGINX_BINARY: openresty
           LUA_BIN_PATH: /opt/app-root/bin
@@ -64,20 +64,20 @@ jobs:
           destination: tmp
       - store_test_results:
           path: apicast/tmp/junit
+
 workflows:
-  version: 2
   build_and_test:
     jobs:
-      - apicast-test
+      - apicast-test:
+          filters: # required since `release` has tag filters AND requires `apicast-test`
+            tags:
+              only: /.*/
       - deploy:
           context: org-global
           requires:
             - apicast-test
-
-# TODO: remove this once CircleCI 2.0 supports building from tags
-# https://discuss.circleci.com/t/git-tag-deploys-in-2-0/9493/5
-deployment:
-  fake_deploy_for_cci2:
-    tag: /.*/
-    commands:
-      - echo "make tags run in 2.0"
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/

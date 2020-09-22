@@ -21,7 +21,7 @@ objects:
       spec:
         containers:
         - name: apicast-mapping-service
-          image: "${MAPPING_SERVICE_IMAGE}"
+          image: quay.io/3scale/apicast-cloud-hosted:mapping-service-${RELEASE_REF}
           imagePullPolicy: Always
           env:
           - name: MASTER_ACCESS_TOKEN
@@ -195,11 +195,6 @@ parameters:
 - description: "Cache TTL in seconds. For how long cache configurations"
   name: CACHE_TTL
   required: true
-
-- name: MAPPING_SERVICE_IMAGE
-  description: "Mapping Service image name. Used to discover proxy configurations."
-  required: true
-  value: "quay.io/3scale/apicast-cloud-hosted:mapping-service-master"
 
 - name: MASTER_ACCESS_TOKEN_SECRET
   description: "Secret name that containts System Master Access Token password"
