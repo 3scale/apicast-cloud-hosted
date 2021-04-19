@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-APICAST_VERSION ?= v3.9.1
+APICAST_VERSION ?= v3.10.0
 RELEASE ?= local
 IMAGE_TAG ?= apicast-$(APICAST_VERSION)-$(RELEASE)
 RUNTIME_IMAGE ?= quay.io/3scale/apicast:$(APICAST_VERSION)
