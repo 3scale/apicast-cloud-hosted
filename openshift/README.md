@@ -44,6 +44,8 @@
     $ make deploy RELEASE_REF=v3-5-0-beta1 ENVIRONMENT=staging CACHE_TTL=30
 ```
 
+* Manually update the `apicast-mapping-service` DeploymentConfig image to use the dot notation `quay.io/3scale/apicast-cloud-hosted:mapping-service-v3.5.0-beta1` as the image is generated in the CI and fetched directly from `quay.io`.
+
 * Update both Routes pointing to new services version `v3-5-0-beta1` with weight 0 by the moment (leaving old but productive version `v3-4-0` with weight 100).
 
 ## Apicast-production canary preparation
@@ -68,6 +70,8 @@
     $ oc project apicast-production
     $ make deploy RELEASE_REF=v3-5-0-beta1 ENVIRONMENT=production CACHE_TTL=300
 ```
+
+* Manually update the `apicast-mapping-service` DeploymentConfig image to use the dot notation `quay.io/3scale/apicast-cloud-hosted:mapping-service-v3.5.0-beta1` as the image is generated in the CI and fetched directly from `quay.io`.
 
 * Update both Routes pointing to new services version `v3-5-0-beta1` with weight 0 by the moment (leaving old but productive version `v3-4-0` with weight 100).
 
