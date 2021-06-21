@@ -1,0 +1,9 @@
+luarocks {
+	group 'production' {
+		module { 'nginx-lua-prometheus' },
+	},
+	group { 'development', 'test' } {
+		module { 'apicast' },
+		module { 'busted' },
+	}
+}

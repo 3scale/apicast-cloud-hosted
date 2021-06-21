@@ -11,6 +11,7 @@ local lrucache = require('resty.lrucache')
 local getenv = os.getenv
 local setmetatable = setmetatable
 local format = string.format
+local gsub = string.gsub
 local unpack = unpack
 
 --local binding = require('resty.repl')
@@ -35,8 +36,11 @@ function _M.new(options)
     options = { ssl = { verify = resty_env.enabled('OPENSSL_VERIFY') or false } }
   })
   local api_host = opts.api_host or getenv('API_HOST') or 'https://multitenant-admin.3scale.net'
+  local preview_base_domain = opts.preview_base_domain or getenv('PREVIEW_BASE_DOMAIN')
+  -- local preview_base_domain = "preview01.3scale.net"
   local access_token = opts.access_token or getenv('MASTER_ACCESS_TOKEN')
   local environment = _M.normalize_environment(opts.environment)
+
 
   if not environment then
     ngx.log(ngx.WARN, 'missing environment')
@@ -48,7 +52,8 @@ function _M.new(options)
     http_client = http_client,
     api_host = api_host,
     access_token = access_token,
-    environment = environment
+    environment = environment,
+    preview_base_domain = preview_base_domain
   }, mt)
 end
 
@@ -148,8 +153,23 @@ function _M:provider_domain(provider_id)
 
   if response.status == 200 then
     local admin_domain = cjson.decode(response.body).account.admin_domain
+
+    --[[
+    This block of code is used to make apicast work in the preview environment.
+    It takes the admin_domain as returned by system (which is the production one)
+    and modifies it so the admin_domain points to the preview environment. Subsequent
+    requests to system api are done with the modified admin_domain and thus correctly
+    pointed to preview
+    --]]
+    if self.preview_base_domain then
+      local preview_admin_domain = format('%s.%s', ngx_re.split(admin_domain, '[%.]')[1], self.preview_base_domain)
+      ngx.log(ngx.NOTICE, 'PREVIEW: changed admin_domain "', admin_domain, '" by "', preview_admin_domain, '"')
+      admin_domain = preview_admin_domain
+    end
+
     local url = resty_url.split(self.api_host)
     local scheme, _, _, _, port = unpack(url)
+
 
     return true, format('%s://%s:%s', scheme, admin_domain, port or resty_url.default_port(scheme))
   else
