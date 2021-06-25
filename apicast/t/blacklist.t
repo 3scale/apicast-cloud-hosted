@@ -68,3 +68,48 @@ GET /t
 --- error_log
 could not select peer:
 
+
+
+=== TEST 3: balancer upstream with APIAP config
+Going to prevent connecting to local upstream.
+--- configuration
+{
+  "services": [
+    {
+      "proxy": {
+        "policy_chain": [
+          { "name": "cloud_hosted.balancer_blacklist", "version": "0.1" },
+          {
+            "name": "apicast.policy.routing",
+            "configuration": {
+              "rules": [
+                {
+                  "url": "http://test:$TEST_NGINX_SERVER_PORT/t",
+                  "condition": {
+                    "operations": [
+                      {
+                        "match": "liquid",
+                        "liquid_value": "test",
+                        "op": "==",
+                        "value": "test"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+--- upstream
+location /t {
+  content_by_lua_block { ngx.say('ok') }
+}
+--- request
+GET /t
+--- error_code: 503
+--- error_log
+could not select peer:

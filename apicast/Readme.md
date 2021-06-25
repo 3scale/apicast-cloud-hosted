@@ -25,3 +25,10 @@ The makefile has a few options on the top, regarding versions, repos ,etc..
 ## How to deploy
 
 TBD
+
+## How to test:
+
+```
+make prove
+make test
+```
