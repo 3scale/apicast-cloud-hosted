@@ -1,12 +1,6 @@
 luarocks {
 	group 'production' {
 		module { 'lua-resty-iputils' },
-		module { 'nginx-lua-prometheus' },
-	},
-
-	group { 'development', 'test' } {
-		module { 'apicast' },
-		module { 'lua-resty-repl' },
-		module { 'ljsonschema' },
+		module { 'net-url' }
 	}
 }
