@@ -1,6 +1,9 @@
 BEGIN {
-    $ENV{TEST_NGINX_APICAST_BINARY} ||= 'rover exec apicast';
+    $ENV{TEST_NGINX_APICAST_BINARY} ||= 'apicast';
     $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
+    # By default new versions of Blackbox uses `gateway` for upstream repo
+    # https://github.com/3scale/Test-APIcast/blob/master/lib/Test/APIcast.pm#L20
+    $ENV{TEST_NGINX_APICAST_PATH}  = "/opt/app-root/src/";
 }
 
 use strict;
