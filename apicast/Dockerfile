@@ -28,3 +28,5 @@ RUN mkdir -p /usr/share/lua/5.1/luarocks/ && \
 
 ENV LUA_PATH="/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/opt/app-root/src/lua_modules/share/lua/5.1/?.lua;/opt/app-root/src/src/apicast/policy/?/init.lua;/opt/app-root/src/src/apicast/policy/?/init.lua"
 ENV APICAST_LOADED_ENVIRONMENTS=cloud_hosted
+
+CMD ["bin/apicast"]
