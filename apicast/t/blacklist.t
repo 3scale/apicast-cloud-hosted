@@ -1,6 +1,9 @@
 BEGIN {
-    $ENV{TEST_NGINX_APICAST_BINARY} ||= 'rover exec apicast';
+    $ENV{TEST_NGINX_APICAST_BINARY} ||= 'apicast';
     $ENV{APICAST_POLICY_LOAD_PATH} = './policies';
+    # By default new versions of Blackbox uses `gateway` for upstream repo
+    # https://github.com/3scale/Test-APIcast/blob/master/lib/Test/APIcast.pm#L20
+    $ENV{TEST_NGINX_APICAST_PATH}  = "/opt/app-root/src/";
 }
 
 use strict;
@@ -65,3 +68,48 @@ GET /t
 --- error_log
 could not select peer:
 
+
+
+=== TEST 3: balancer upstream with APIAP config
+Going to prevent connecting to local upstream.
+--- configuration
+{
+  "services": [
+    {
+      "proxy": {
+        "policy_chain": [
+          { "name": "cloud_hosted.balancer_blacklist", "version": "0.1" },
+          {
+            "name": "apicast.policy.routing",
+            "configuration": {
+              "rules": [
+                {
+                  "url": "http://test:$TEST_NGINX_SERVER_PORT/t",
+                  "condition": {
+                    "operations": [
+                      {
+                        "match": "liquid",
+                        "liquid_value": "test",
+                        "op": "==",
+                        "value": "test"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+--- upstream
+location /t {
+  content_by_lua_block { ngx.say('ok') }
+}
+--- request
+GET /t
+--- error_code: 503
+--- error_log
+could not select peer:

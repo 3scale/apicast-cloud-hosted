@@ -1,3 +1,2 @@
-requires 'TAP::Harness::JUnit'; 
-requires 'Test::APIcast', '0.19';
-
+requires 'Test::Nginx', '<=0.26';
+requires 'Test::APIcast', '<=0.24';
