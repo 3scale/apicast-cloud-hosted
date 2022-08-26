@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 
-APICAST_VERSION ?= 3scale2.10
-IMAGE_TAG ?= apicast-$(APICAST_VERSION)
+APICAST_VERSION ?= 3scale2.12
+RELEASE ?= local
+IMAGE_TAG ?= apicast-$(APICAST_VERSION)-$(RELEASE)
 IMAGE_NAME ?= apicast-cloud-hosted
 BASE_IMAGE ?= registry.redhat.io/3scale-amp2/apicast-gateway-rhel8:$(APICAST_VERSION)
 DOCKER = docker
