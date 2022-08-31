@@ -1,6 +1,4 @@
-#ARG IMAGE=registry.redhat.io/3scale-amp2/apicast-gateway-rhel8:3scale2.10
-ARG IMAGE=quay.io/3scale/rh-apicast:3scale-2.11-candidate
-
+ARG IMAGE
 FROM ${IMAGE}
 
 USER root
