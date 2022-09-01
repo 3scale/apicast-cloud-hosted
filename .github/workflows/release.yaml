@@ -1,0 +1,51 @@
+name: release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build apicast image
+        run: cd apicast && make build
+
+      - name: Test apicast image
+        run: cd apicast && make test && make prove
+
+      - name: Build mapping-service image
+        run: cd mapping-service && make build
+
+      - name: Test mapping-service image
+        run: cd mapping-service && make test && make prove
+
+      - name: Export release name
+        run: |
+          echo "NEW_RELEASE=$(make get-new-release)" >> $GITHUB_ENV
+
+      - name: Push new apicast image
+        if: ${{ env.NEW_RELEASE != '' }}
+        run: cd apicast && make push
+
+      - name: Push new mapping-service image
+        if: ${{ env.NEW_RELEASE != '' }}
+        run: cd mapping-service && make push
+
+      - name: Create a new release in github
+        if: ${{ env.NEW_RELEASE != '' }}
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.NEW_RELEASE }}"
+          title: "${{ env.NEW_RELEASE }}"
