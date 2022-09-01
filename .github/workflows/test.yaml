@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - master
-  push:
-    # only trigger on branches, not on tags
-    branches: ["**"]
 
 jobs:
   apicast-test:
