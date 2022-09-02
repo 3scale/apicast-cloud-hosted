@@ -33,7 +33,7 @@ busted: ## Run lua tests in the $(S2I_OPENRESTY_IMAGE) image
 
 push: build ## Push image to container registry
 	$(DOCKER) tag $(LOCAL_IMAGE_NAME) $(REGISTRY)/$(LOCAL_IMAGE_NAME)
-	$(DOCKER) push $(LOCAL_IMAGE_NAME) $(REGISTRY)/$(LOCAL_IMAGE_NAME)
+	$(DOCKER) push $(REGISTRY)/$(LOCAL_IMAGE_NAME)
 
 .env:
 	cp $@.example $@
