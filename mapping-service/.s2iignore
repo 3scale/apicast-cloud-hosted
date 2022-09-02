@@ -1,6 +1,0 @@
-.gitignore
-spec
-t
-.env*
-.gitignore
-Makefile
