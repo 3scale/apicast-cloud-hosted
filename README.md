@@ -24,6 +24,7 @@ The SaaS APIcast gateway is configured like any installaton of APIcast, using [a
 ### Gateway exposed ports
 
 The usual APIcast ports: 8080 for the gateway, 8090 for management and 9421 for metrics.
+
 ## Mapping Service
 
 Mapping Service is a microservice that fetches configuration from the 3scale Portal API and serves it to the APIcast gateway.
@@ -47,25 +48,30 @@ The Mapping Service exposes the service port on 8093 and the metrics port on 942
 
 Within each directory (apicast/mappong-service) there is a Makefile with targets to execute tests locally inside a docker container to avoid having to install test dependencies on the local host
 
-* Unit tests: `make docker-busted`
-* Integration tests: `make docker-prove`
+* Unit tests: `make busted`
+* Integration tests: `make prove`
 
-### Change the base APIcast imager
+### Change the base APIcast image
 
-To change the base APIcast image used to build both APIcast Cloud Hosted images, just change the APICAST_VERSION variable in each Makefile.
+Both apicast and mapping-service docker images are built on top of the productized apicast image (quay.io/3scale/rh-apicast). In the top Makefile of this project, the variable `BASE_IMAGE_TAG` holds the tag to be used from the apicast productized image repository.
 
-## Release process
+There are two options to rebuild apicast-cloud-hosted images:
 
-The release process is managed with a [CircleCI pipeline](https://app.circleci.com/pipelines/github/3scale/apicast-cloud-hosted). This pipeline can be triggered in two different ways:
+* Change the tag of the base image changing `BASE_IMAGE_TAG`. This is tipically done when we want to upgrade, for example from 3scale 2.12 to 3scale 2.13 images.
+* Increase the build number by changing the Makefile variable `BUILD_INFO`. This is used to force a rebuild of the image within the same apicast version. This only makes sense when using a floating tag from the productized apicast docker repo.
 
-* With every push of code to the repo, the test job of the pipeline will be executed
-* When an annotated git tag is pushed to the repo that matches the pattern "r.*", the pipeline will execute the test and release steps. The release step will push new images to quay.io/3scale/apicast-cloud-hosted, tagged with the git tag. The recommended way to create a new git annotated tag is to create a new GitHub release in this repository, with all the release information.
+## Pipelines
+
+Pipelines are configured in GitHub Actions. There are two workflows.
+
+* With every PR to the master branch, the test workflow will run.
+* With each push to master, the release workflow will run. It will create new apicast-cloud-hosted images and a new release in the repo if a release with the same name does not yet exist. The releases are named as `<apicast_productized_tag>-<build_info>`.
 
 Images are tagged as follows:
 
-* APIcast gateway: `quay.io/3scale/apicast-cloud-hosted:apicast-<apicast_version>-<rX>`
-* Mapping Service: `quay.io/3scale/apicast-cloud-hosted:mapping-service-<apicast_version>-<rX>`
+* APIcast gateway: `quay.io/3scale/apicast-cloud-hosted:apicast-<apicast_productized_tag>-<build_info>`
+* Mapping Service: `quay.io/3scale/apicast-cloud-hosted:mapping-service-<apicast_productized_tag>-<build_info>`
 
 ## Images
 
-The apicast-cloud-hosted images are published to [quay.io/3scale/apicast-cloud-hosted](https://quay.io/repository/3scale/apicast-cloud-hosted?tab=tags). The images are built on top of the [APIcast upstream image](https://quay.io/repository/3scale/apicast?tab=tags) using the [s2i](https://github.com/openshift/source-to-image) tool (source to image).
+The apicast-cloud-hosted images are pushed to [quay.io/3scale/apicast-cloud-hosted](https://quay.io/repository/3scale/apicast-cloud-hosted?tab=tags). The images are built on top of the [APIcast productized image](https://quay.io/repository/3scale/rh-apicast?tab=tags&tag=latest).
