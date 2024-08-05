@@ -13,7 +13,7 @@ nginx-lua-prometheus nginx-lua-prometheus 0.20181120-3||production,development,t
 penlight 1.5.4-1||development,test
 router 2.1-0||development,test
 busted 2.0.0-1||development,test
-dkjson 2.5-2||development,test
+dkjson 2.8-1||development,test
 lua-term 0.7-1||development,test
 lua_cliargs 3.0-2||development,test
 luassert 1.8.0-0||development,test
