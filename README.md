@@ -16,6 +16,7 @@ APIcast Cloud Hosted is the modified [APIcast](https://github.com/3scale/apicast
   * logging
   * retry
   * upstream_connection
+  * liquid_context_debug
 
 ### Gateway Configuration
 
