@@ -7,6 +7,7 @@ lua-resty-execvp 0.1.1-1||development,test
 lua-resty-http 0.12-0||development,test
 lua-resty-jit-uuid 0.0.7-1|64ae38de75c9d58f330d89e140ac872771c19223|development,test
 lua-resty-jwt 0.2.0-0||development,test
+lua-resty-openssl 1.5.2||development,test
 lua-resty-url 0.3.5-1||development,test
 luafilesystem 1.7.0-2||development,test
 nginx-lua-prometheus nginx-lua-prometheus 0.20181120-3||production,development,test
