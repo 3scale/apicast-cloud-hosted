@@ -30,7 +30,7 @@ jobs:
         run: cd mapping-service && make build
 
       - name: Test mapping-service image
-        run: cd mapping-service && make test && make prove
+        run: cd mapping-service && make busted && make test && make prove
 
       - name: Export release name
         run: |
