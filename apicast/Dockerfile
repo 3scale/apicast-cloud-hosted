@@ -4,7 +4,7 @@ FROM ${IMAGE}
 USER root
 WORKDIR /opt/app-root/src/
 
-RUN rm -rfv /opt/app-root/src/src/apicast/policy/{rate_limit,token_introspection,3scale_batcher,conditional,logging,retry,upstream_connection,liquid_context_debug}/apicast-policy.json
+RUN rm -rfv /opt/app-root/src/src/apicast/policy/{rate_limit,token_introspection,3scale_batcher,conditional,logging,retry,upstream_connection,liquid_context_debug,request_unbuffered}/apicast-policy.json
 RUN dnf install -y perl-App-cpanminus gcc git
 
 COPY cpanfile cpanfile
