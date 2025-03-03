@@ -1,6 +1,6 @@
 BASE_IMAGE_REPO ?= quay.io/3scale/apicast-cloud-hosted
-BASE_IMAGE_TAG ?= 3scale2.13-1.23.0-12
-BUILD_INFO ?= 002
+BASE_IMAGE_TAG ?= 3scale2.15.2-1.25.0-35
+BUILD_INFO ?= 001
 IMAGE_NAME ?= apicast-cloud-hosted
 DOCKER ?= docker
 REGISTRY ?= quay.io/3scale
