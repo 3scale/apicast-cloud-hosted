@@ -1,6 +1,5 @@
 luarocks {
 	group 'production' {
-		module { 'lua-resty-iputils' },
 		module { 'net-url' }
 	}
 }
