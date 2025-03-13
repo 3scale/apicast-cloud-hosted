@@ -11,7 +11,6 @@ local lrucache = require('resty.lrucache')
 local getenv = os.getenv
 local setmetatable = setmetatable
 local format = string.format
-local gsub = string.gsub
 local unpack = unpack
 
 --local binding = require('resty.repl')
