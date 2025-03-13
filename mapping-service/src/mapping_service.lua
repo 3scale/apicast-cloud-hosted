@@ -170,7 +170,6 @@ function _M:provider_domain(provider_id)
     local url = resty_url.split(self.api_host)
     local scheme, _, _, _, port = unpack(url)
 
-
     return true, format('%s://%s:%s', scheme, admin_domain, port or resty_url.default_port(scheme))
   else
     ngx.log(ngx.ERR, 'failed to load Provider Domain')

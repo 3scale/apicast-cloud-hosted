@@ -1,9 +1,5 @@
 luarocks {
-	group 'production' {
-		module { 'nginx-lua-prometheus' },
-	},
-	group { 'development', 'test' } {
-		module { 'apicast' },
+	group 'test' {
 		module { 'busted' },
 	}
 }

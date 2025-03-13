@@ -1,0 +1,25 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings FATAL => 'all';
+
+use File::Basename;
+use File::Path qw(make_path);
+use Cwd;
+
+my $dirname = dirname(__FILE__);
+my $cwd = getcwd();
+
+chdir "$dirname/..";
+
+my $apicast = getcwd();
+
+$ENV{APICAST_DIR} ||= "$apicast/gateway";
+
+exec '/usr/bin/env', 'resty',
+    '--errlog-level', $ENV{APICAST_LOG_LEVEL} || 'alert',
+    '-l', 'resty.core',
+    "$apicast/bin/busted.lua",
+    '--config-file', "$apicast/.busted",
+    '--directory', "$cwd",
+    @ARGV;

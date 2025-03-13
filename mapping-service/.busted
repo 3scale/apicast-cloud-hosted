@@ -1,0 +1,12 @@
+local path = require('pl.path')
+local root = path.currentdir()
+
+local default = {
+  verbose = true,
+
+  lpath = path.join(root, 'spec/?.lua;')  .. path.join(root, 'src/?.lua;'),
+}
+
+return {
+  default = default,
+}
