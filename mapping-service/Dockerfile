@@ -17,8 +17,4 @@ COPY main.d main.d
 COPY sites.d sites.d
 COPY src src
 
-
-RUN git config --global url.https://github.com/.insteadOf git://github.com/
-RUN rover install
-
 CMD ["bin/apicast"]

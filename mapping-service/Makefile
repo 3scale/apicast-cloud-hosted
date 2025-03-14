@@ -20,16 +20,17 @@ prove: build ## Run mapping-service tests
 		-e TEST_NGINX_CLIENT_PORT=8093 \
 		$(LOCAL_IMAGE_NAME) prove
 
-S2I_OPENRESTY_IMAGE ?= quay.io/3scale/s2i-openresty-centos7:1.17.4.1-0-centos8
 busted: ## Run lua tests in the $(S2I_OPENRESTY_IMAGE) image
 	docker run --rm -u $(shell id -u)  \
-		--mount type=bind,source=$$(pwd),target=/opt/app-root/src \
-		$(S2I_OPENRESTY_IMAGE) \
+		-v ./spec:/opt/app-root/src/spec \
+		-v ./.busted:/opt/app-root/src/.busted \
+		-v ./bin:/opt/app-root/src/bin/ \
+		$(LOCAL_IMAGE_NAME) \
 		sh -c \
 			"git config --global url.https://github.com/.insteadOf git://github.com/ && \
 			rover install && \
-			/usr/libexec/s2i/entrypoint cpanm --notest --installdeps . && \
-			busted"
+			rover exec /opt/app-root/src/bin/busted"
+
 
 push: build ## Push image to container registry
 	$(DOCKER) tag $(LOCAL_IMAGE_NAME) $(REGISTRY)/$(LOCAL_IMAGE_NAME)
