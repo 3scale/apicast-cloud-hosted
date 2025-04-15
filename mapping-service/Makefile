@@ -20,7 +20,7 @@ prove: build ## Run mapping-service tests
 		-e TEST_NGINX_CLIENT_PORT=8093 \
 		$(LOCAL_IMAGE_NAME) prove
 
-busted: ## Run lua tests in the $(S2I_OPENRESTY_IMAGE) image
+busted: build ## Run lua tests in the $(S2I_OPENRESTY_IMAGE) image
 	docker run --rm -u $(shell id -u)  \
 		-v ./spec:/opt/app-root/src/spec \
 		-v ./.busted:/opt/app-root/src/.busted \
